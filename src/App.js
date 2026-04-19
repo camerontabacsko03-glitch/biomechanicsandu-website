@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 import ThankYouPage from "./ThankYouPage";
 import "./styles.css";
 import logo from "./logo.png";
+import trainerPhoto from "./trainer-photo.png";
 import ApplyForCoachingPage from "./ApplyForCoachingPage";
 import CoachingCallApplicationPage from "./CoachingCallApplicationPage";
 import MovementAssessmentApplicationPage from "./MovementAssessmentApplicationPage";
@@ -189,7 +190,7 @@ function MeetTheTrainerSection() {
 
             <div className="meet-image-shell">
               <img
-                src="/trainer-photo.png"
+                src={trainerPhoto}
                 alt="Trainer for Biomechanics & U"
                 className="meet-image"
               />
@@ -197,7 +198,7 @@ function MeetTheTrainerSection() {
               <div className="meet-floating-card">
                 <div className="meet-floating-label">Biomechanics &amp; U</div>
                 <div className="meet-floating-title">
-                  Built Around Your Structure
+                  Doctor of Physical Therapy
                 </div>
               </div>
             </div>
@@ -207,36 +208,45 @@ function MeetTheTrainerSection() {
             <p className="eyebrow">Meet the Trainer</p>
 
             <h2 className="meet-title">
-              Build muscle with coaching that understands both hypertrophy and
-              biomechanics
+              Hypertrophy coaching built through physical therapy, biomechanics,
+              and years in the gym
             </h2>
 
             <p className="meet-text">
-              I built Biomechanics &amp; U for lifters who want more than hard
-              workouts and generic templates. My coaching is built around your
-              structure, your movement patterns, and your long-term progress.
+              I’m a Doctor of Physical Therapy currently living in Southern New
+              Hampshire. My passion for helping others started in the gym, where
+              I’ve spent years developing a deeper understanding of biomechanics
+              and how the body responds to training.
             </p>
 
             <p className="meet-text">
-              The goal is not just to help you train harder. It is to help you
-              build muscle, move better, and stay strong with programming that
-              actually fits your body.
+              Through that process, I learned that every person needs individual
+              attention and precise exercise selection based on their structure,
+              mechanics, and body type in order to build as much muscle as
+              possible.
+            </p>
+
+            <p className="meet-text">
+              Biomechanics &amp; U has been years in the making through both my
+              own training and the work I’ve done with patients. I’m excited to
+              share that process with you and help you build muscle, move
+              better, and stay strong.
             </p>
 
             <div className="meet-points">
-              <div className="meet-point">Built around your structure</div>
+              <div className="meet-point">Doctor of Physical Therapy</div>
               <div className="meet-point">
-                Hypertrophy with biomechanics in mind
+                Biomechanics-based hypertrophy coaching
               </div>
               <div className="meet-point">
-                Strength progress without constant setbacks
+                Built around your structure and movement
               </div>
             </div>
 
             <div className="meet-quote-box">
               <p>
-                “My goal is to help lifters build muscle and perform at a high
-                level without constantly fighting their own body.”
+                “My goal is to help people build more muscle with training that
+                actually fits their body.”
               </p>
             </div>
 
@@ -512,7 +522,8 @@ function HomePage() {
             </p>
 
             <p className="hero-subline">
-              Built Around Your Structure • Hypertrophy • Strength • Longevity
+              Doctor of Physical Therapy • Built Around Your Structure •
+              Hypertrophy/Strength • Longevity
             </p>
 
             <div className="hero-buttons">
