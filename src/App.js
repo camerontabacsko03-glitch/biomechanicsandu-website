@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-
+import { Menu, X } from "lucide-react";
+import ThankYouPage from "./ThankYouPage";
 import "./styles.css";
 import logo from "./logo.png";
 import ApplyForCoachingPage from "./ApplyForCoachingPage";
@@ -419,6 +420,8 @@ function FinalCTASection() {
 }
 
 function HomePage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="site">
       <header className="navbar">
@@ -435,7 +438,7 @@ function HomePage() {
             </div>
           </Link>
 
-          <nav className="nav-links">
+          <nav className="nav-links desktop-nav">
             <a href="#about">About</a>
             <a href="#for-who">Who It's For</a>
             <a href="#process">How It Works</a>
@@ -444,12 +447,53 @@ function HomePage() {
             <Link to="/exercise-library">Exercise Library</Link>
           </nav>
 
-          <div className="nav-actions">
+          <div className="nav-actions desktop-nav">
             <Link to="/apply" className="btn btn-primary nav-cta">
               Apply Now
             </Link>
           </div>
+
+          <button
+            className="mobile-menu-toggle"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle navigation menu"
+          >
+            {mobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
+          </button>
         </div>
+
+        {mobileMenuOpen && (
+          <div className="mobile-nav">
+            <a href="#about" onClick={() => setMobileMenuOpen(false)}>
+              About
+            </a>
+            <a href="#for-who" onClick={() => setMobileMenuOpen(false)}>
+              Who It's For
+            </a>
+            <a href="#process" onClick={() => setMobileMenuOpen(false)}>
+              How It Works
+            </a>
+            <a href="#pricing" onClick={() => setMobileMenuOpen(false)}>
+              Pricing
+            </a>
+            <a href="#trainer" onClick={() => setMobileMenuOpen(false)}>
+              Meet the Trainer
+            </a>
+            <Link
+              to="/exercise-library"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Exercise Library
+            </Link>
+            <Link
+              to="/apply"
+              className="btn btn-primary mobile-nav-cta"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Apply Now
+            </Link>
+          </div>
+        )}
       </header>
 
       <section className="hero">
@@ -957,11 +1001,20 @@ function HomePage() {
           </div>
 
           <div className="positioning-box" style={{ marginBottom: "32px" }}>
-            <h3>Assessment credit toward coaching</h3>
+            <h3>Assessment Credit Toward Coaching</h3>
             <p>
-              If you move forward with full coaching after your Movement
-              Assessment, that assessment fee can be credited toward your
+              Your Movement Assessment isn’t a separate cost — if you continue
+              into full coaching, your assessment fee is applied toward your
               onboarding.
+            </p>
+            <p
+              style={{
+                marginTop: "10px",
+                fontSize: "0.9rem",
+                opacity: 0.7,
+              }}
+            >
+              Apply your credit at checkout when you get started.
             </p>
           </div>
 
@@ -1046,6 +1099,7 @@ export default function App() {
           />
           <Route path="/payment-redirect" element={<PaymentRedirectPage />} />
           <Route path="/exercise-library" element={<ExerciseLibrary />} />
+          <Route path="/thank-you" element={<ThankYouPage />} />
         </Routes>
       </Router>
     </>

@@ -5,8 +5,7 @@ import logo from "./logo.png";
 const GOOGLE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbwm3cgq8IEJTvDBTMiuRR6wZV6TqDucnrcbUwYnVKHc0233kXY-Vfabhh9aSQbbZO6H/exec";
 
-const BOOK_AND_PAY_LINK =
-  "https://calendly.com/biomechanicsandu-coach/movement-assessment";
+const BOOK_AND_PAY_LINK = "https://buy.stripe.com/bJe3co5vj1UX1Ln8Vm1kA07";
 
 const pageBg = {
   minHeight: "100vh",
@@ -223,6 +222,10 @@ export default function MovementAssessmentApplicationPage() {
       if (result.success) {
         setSubmitted(true);
         setSubmitMessage("Application submitted successfully.");
+
+        setTimeout(() => {
+          window.location.href = BOOK_AND_PAY_LINK;
+        }, 800);
       } else {
         setSubmitMessage(
           result.message || "Submission failed inside Apps Script."
