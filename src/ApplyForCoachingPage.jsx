@@ -258,6 +258,9 @@ export default function ApplyForCoachingPage() {
       if (result.success) {
         setSubmitted(true);
         setSubmitMessage("Application submitted successfully.");
+        setTimeout(() => {
+          window.location.href = selectedBookAndPayLink;
+        }, 800);
         setFormData({
           selectedPlan: selectedPlan,
           firstName: "",
