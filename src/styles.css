@@ -2146,3 +2146,6 @@ a {
     width: auto;
   }
 }
+.category-scroll::-webkit-scrollbar {
+  display: none;
+}
