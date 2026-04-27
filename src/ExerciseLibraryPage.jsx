@@ -11,7 +11,7 @@ import {
   Crown,
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import exerciseDatabase from "./data/exerciseDatabase";
+import exerciseDatabase from "../data/exerciseDatabase";
 
 function ExerciseListRow({
   exercise,
