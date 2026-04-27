@@ -1,6 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import ExerciseCard from "./ExerciseCard";
 
 export default function ExerciseGrid({ exercises, isMember }) {
+  const navigate = useNavigate();
+
   return (
     <div
       style={{
@@ -14,6 +17,7 @@ export default function ExerciseGrid({ exercises, isMember }) {
           key={exercise.id}
           exercise={exercise}
           isMember={isMember}
+          onViewExercise={() => navigate(`/exercise/${exercise.id}`)}
         />
       ))}
     </div>
