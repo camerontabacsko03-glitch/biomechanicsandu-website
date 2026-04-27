@@ -8,7 +8,8 @@ import trainerPhoto from "./trainer-photo.png";
 import ApplyForCoachingPage from "./ApplyForCoachingPage";
 import CoachingCallApplicationPage from "./CoachingCallApplicationPage";
 import MovementAssessmentApplicationPage from "./MovementAssessmentApplicationPage";
-import ExerciseLibrary from "./pages/ExerciseLibrary";
+import ExerciseLibraryPage from "./ExerciseLibraryPage";
+import ExerciseDetailPage from "./ExerciseDetailPage";
 import PaymentRedirectPage from "./PaymentRedirectPage";
 import ScrollToTop from "./ScrollToTop";
 
@@ -1109,7 +1110,8 @@ export default function App() {
             element={<MovementAssessmentApplicationPage />}
           />
           <Route path="/payment-redirect" element={<PaymentRedirectPage />} />
-          <Route path="/exercise-library" element={<ExerciseLibrary />} />
+          <Route path="/exercise/:id" element={<ExerciseDetailPage />} />
+          <Route path="/exercise-library" element={<ExerciseLibraryPage />} />
           <Route path="/thank-you" element={<ThankYouPage />} />
         </Routes>
       </Router>
