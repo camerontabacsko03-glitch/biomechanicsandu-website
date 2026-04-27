@@ -1,5 +1,5 @@
-export default function ExerciseCard({ exercise, isMember }) {
-  const locked = exercise.isPro && !isMember;
+export default function ExerciseCard({ exercise, isMember, onViewExercise }) {
+  const locked = exercise.premium && !isMember;
 
   return (
     <div
@@ -20,7 +20,10 @@ export default function ExerciseCard({ exercise, isMember }) {
     >
       <div style={{ position: "relative" }}>
         <img
-          src={exercise.thumbnail}
+          src={
+            exercise.thumbnail ||
+            "https://via.placeholder.com/600x400?text=Exercise"
+          }
           alt={exercise.name}
           style={{
             width: "100%",
@@ -99,7 +102,7 @@ export default function ExerciseCard({ exercise, isMember }) {
           {exercise.name}
         </h3>
 
-        {exercise.bias && (
+        {exercise.romBias && (
           <div
             style={{
               marginBottom: "12px",
@@ -117,7 +120,7 @@ export default function ExerciseCard({ exercise, isMember }) {
                 fontWeight: "700",
               }}
             >
-              Focus: {exercise.bias}
+              ROM Bias: {exercise.romBias}
             </span>
           </div>
         )}
@@ -130,7 +133,8 @@ export default function ExerciseCard({ exercise, isMember }) {
             lineHeight: "1.6",
           }}
         >
-          {exercise.description}
+          {exercise.mainTrainingApplication ||
+            "Biomechanics-based exercise selection."}
         </p>
 
         <div
@@ -141,7 +145,7 @@ export default function ExerciseCard({ exercise, isMember }) {
             marginBottom: "14px",
           }}
         >
-          {exercise.muscles.map((muscle) => (
+          {(exercise.primaryMuscles || []).map((muscle) => (
             <span
               key={muscle}
               style={{
@@ -194,7 +198,9 @@ export default function ExerciseCard({ exercise, isMember }) {
                 fontWeight: "600",
               }}
             >
-              {exercise.equipment}
+              {exercise.equipment?.length
+                ? exercise.equipment.join(", ")
+                : "No equipment listed"}
             </p>
           </div>
 
@@ -220,6 +226,7 @@ export default function ExerciseCard({ exercise, isMember }) {
             </a>
           ) : (
             <button
+              onClick={onViewExercise}
               style={{
                 width: "100%",
                 padding: "13px 16px",
