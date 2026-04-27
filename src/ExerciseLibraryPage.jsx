@@ -1,367 +1,470 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Search, Play, ArrowRight } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Search,
+  SlidersHorizontal,
+  X,
+  Star,
+  ArrowUpDown,
+  Check,
+  Play,
+  Lock,
+  Crown,
+} from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import exerciseDatabase from "./data/exerciseDatabase";
 
-const exercises = [
-  {
-    id: 1,
-    title: "Goblet Squat",
-    category: "Lower Body",
-    level: "Beginner",
-    focus: "Quad strength, trunk control, squat mechanics",
-    cues: [
-      "Keep ribs stacked over pelvis",
-      "Sit down between the hips",
-      "Drive through the full foot",
-    ],
-    description:
-      "A foundational squat variation to build strength, coordination, and positional awareness.",
-  },
-  {
-    id: 2,
-    title: "Romanian Deadlift",
-    category: "Lower Body",
-    level: "Intermediate",
-    focus: "Posterior chain, hip hinge mechanics",
-    cues: [
-      "Push hips back without rounding",
-      "Keep the bar close to the body",
-      "Feel tension in hamstrings",
-    ],
-    description:
-      "A hinge-focused movement for glutes and hamstrings while reinforcing clean hip mechanics.",
-  },
-  {
-    id: 3,
-    title: "Split Squat",
-    category: "Lower Body",
-    level: "Beginner",
-    focus: "Single-leg strength, balance, pelvic control",
-    cues: [
-      "Stay tall through the torso",
-      "Control the back knee down",
-      "Push evenly through the front foot",
-    ],
-    description:
-      "Excellent for unilateral strength, joint control, and reducing side-to-side asymmetries.",
-  },
-  {
-    id: 4,
-    title: "Push-Up",
-    category: "Upper Body",
-    level: "Beginner",
-    focus: "Upper body strength, trunk stiffness, scapular control",
-    cues: [
-      "Keep body in one straight line",
-      "Lower under control",
-      "Push the floor away at the top",
-    ],
-    description:
-      "A classic bodyweight movement that develops pressing strength and full-body control.",
-  },
-  {
-    id: 5,
-    title: "Chest-Supported Row",
-    category: "Upper Body",
-    level: "Beginner",
-    focus: "Upper back strength, scapular mechanics",
-    cues: [
-      "Pull elbows toward hips",
-      "Avoid shrugging shoulders",
-      "Pause briefly at the top",
-    ],
-    description:
-      "A stable rowing variation that targets the upper back without excessive low back stress.",
-  },
-  {
-    id: 6,
-    title: "Dead Bug",
-    category: "Core",
-    level: "Beginner",
-    focus: "Core control, trunk stability, pelvic positioning",
-    cues: [
-      "Keep lower back gently connected",
-      "Exhale as you reach",
-      "Move slowly and with control",
-    ],
-    description:
-      "A core drill that teaches proper trunk control while coordinating arms and legs.",
-  },
-  {
-    id: 7,
-    title: "Side Plank",
-    category: "Core",
-    level: "Intermediate",
-    focus: "Lateral core stability, shoulder support",
-    cues: [
-      "Keep hips lifted",
-      "Stack shoulders and ribs",
-      "Stay long through the body",
-    ],
-    description:
-      "Builds lateral trunk strength and improves control through the shoulder and pelvis.",
-  },
-  {
-    id: 8,
-    title: "90/90 Hip Flow",
-    category: "Mobility",
-    level: "All Levels",
-    focus: "Hip mobility, rotational control",
-    cues: [
-      "Stay upright through the torso",
-      "Rotate from the hips",
-      "Move with smooth control",
-    ],
-    description:
-      "A mobility sequence that improves hip internal and external rotation while building control.",
-  },
-  {
-    id: 9,
-    title: "Wall Ankle Mobilization",
-    category: "Mobility",
-    level: "All Levels",
-    focus: "Ankle mobility, squat depth support",
-    cues: [
-      "Keep heel down",
-      "Drive knee forward with control",
-      "Do not collapse arch",
-    ],
-    description:
-      "A simple drill to improve ankle motion and support better movement in squats and lunges.",
-  },
-  {
-    id: 10,
-    title: "Band External Rotation",
-    category: "Rehab / Correctives",
-    level: "Beginner",
-    focus: "Rotator cuff strength, shoulder control",
-    cues: [
-      "Keep elbow pinned to side",
-      "Rotate without shrugging",
-      "Move slowly and intentionally",
-    ],
-    description:
-      "A controlled shoulder exercise to improve cuff strength and joint positioning.",
-  },
-  {
-    id: 11,
-    title: "Spanish Squat Hold",
-    category: "Rehab / Correctives",
-    level: "All Levels",
-    focus: "Quad loading, knee-friendly strength work",
-    cues: [
-      "Sit back into the strap",
-      "Keep torso upright",
-      "Feel quads working hard",
-    ],
-    description:
-      "A useful isometric option for building quad tolerance while managing knee discomfort.",
-  },
-  {
-    id: 12,
-    title: "Farmer Carry",
-    category: "Performance",
-    level: "Intermediate",
-    focus: "Grip, trunk stiffness, gait integrity",
-    cues: [
-      "Stand tall",
-      "Walk with controlled steps",
-      "Do not let weights swing",
-    ],
-    description:
-      "A powerful loaded carry for building real-world strength, posture, and total-body control.",
-  },
-];
+function ExerciseListRow({
+  exercise,
+  onViewExercise,
+  isFavorite,
+  onToggleFavorite,
+  isMember,
+  onLockedExercise,
+}) {
+  const isLocked = exercise.premium && !isMember;
 
-const categories = [
-  "All",
-  "Upper Body",
-  "Lower Body",
-  "Core",
-  "Mobility",
-  "Rehab / Correctives",
-  "Performance",
-];
+  const muscleText = [
+    ...(exercise.primaryMuscles || []),
+    ...(exercise.secondaryMuscles || []),
+  ]
+    .filter(Boolean)
+    .slice(0, 3)
+    .join(", ");
 
-function ExerciseCard({ exercise, isMobile, isSmallMobile }) {
   return (
     <div
-      className="glass-box"
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+        e.currentTarget.style.transform = "translateY(-2px)";
+        e.currentTarget.style.boxShadow = "0 10px 25px rgba(0,0,0,0.25)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "transparent";
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = "none";
+      }}
       style={{
-        borderRadius: isSmallMobile ? "22px" : "28px",
-        overflow: "hidden",
-        border: "1px solid rgba(255,255,255,0.08)",
-        background:
-          "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.025) 100%)",
-        boxShadow: "0 20px 50px rgba(0,0,0,0.22)",
+        width: "100%",
+        display: "grid",
+        gridTemplateColumns: "72px 1fr 38px",
+        gap: "18px",
+        alignItems: "center",
+        padding: "18px 14px",
+        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        borderRadius: "12px",
+        transition: "all 0.2s ease",
+        opacity: isLocked ? 0.78 : 1,
       }}
     >
-      <div
+      <button
+        type="button"
+        onClick={() => {
+          if (isLocked) {
+            onLockedExercise();
+            return;
+          }
+
+          onViewExercise();
+        }}
         style={{
-          position: "relative",
-          height: isSmallMobile ? "180px" : isMobile ? "190px" : "210px",
-          background:
-            "radial-gradient(circle at top left, rgba(122,168,255,0.22) 0%, rgba(122,168,255,0.04) 32%, transparent 60%), linear-gradient(180deg, rgba(15,21,32,1) 0%, rgba(9,13,21,1) 100%)",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
-          display: "flex",
+          gridColumn: "1 / span 2",
+          display: "grid",
+          gridTemplateColumns: "72px 1fr",
+          gap: "18px",
           alignItems: "center",
-          justifyContent: "center",
+          border: "none",
+          background: "transparent",
+          color: "#ffffff",
+          textAlign: "left",
+          cursor: "pointer",
+          padding: 0,
         }}
       >
         <div
           style={{
-            position: "absolute",
-            top: "16px",
-            left: "16px",
-            padding: isSmallMobile ? "7px 10px" : "8px 12px",
-            borderRadius: "999px",
-            fontSize: "0.78rem",
-            fontWeight: 600,
-            color: "#ffffff",
-            background: "rgba(255,255,255,0.08)",
+            position: "relative",
+            width: "72px",
+            height: "72px",
+            borderRadius: "14px",
+            background:
+              "radial-gradient(circle at center, rgba(122,168,255,0.24), rgba(255,255,255,0.04))",
             border: "1px solid rgba(255,255,255,0.08)",
-            maxWidth: isSmallMobile ? "140px" : "none",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
-          {exercise.category}
-        </div>
-
-        <div
-          style={{
-            position: "absolute",
-            top: "16px",
-            right: "16px",
-            padding: isSmallMobile ? "7px 10px" : "8px 12px",
-            borderRadius: "999px",
-            fontSize: "0.78rem",
-            fontWeight: 600,
-            color: "#08111f",
-            background: "#7aa8ff",
-            border: "1px solid rgba(122,168,255,0.55)",
-            maxWidth: isSmallMobile ? "110px" : "none",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
-          {exercise.level}
-        </div>
-
-        <div
-          style={{
-            width: isSmallMobile ? "62px" : "74px",
-            height: isSmallMobile ? "62px" : "74px",
-            borderRadius: "999px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "rgba(122,168,255,0.14)",
-            border: "1px solid rgba(122,168,255,0.3)",
-            boxShadow: "0 0 30px rgba(122,168,255,0.18)",
+            overflow: "hidden",
+            flexShrink: 0,
           }}
         >
-          <Play
-            size={isSmallMobile ? 24 : 28}
-            fill="currentColor"
-            color="#dbe8ff"
-          />
+          <Play size={22} fill="currentColor" color="#dbe8ff" />
+
+          {isLocked && (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: "14px",
+                background: "rgba(0,0,0,0.68)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backdropFilter: "blur(2px)",
+              }}
+            >
+              <Lock size={22} color="#ffffff" />
+            </div>
+          )}
         </div>
-      </div>
 
-      <div
-        style={{ padding: isSmallMobile ? "18px" : isMobile ? "22px" : "26px" }}
-      >
-        <h3
-          style={{
-            margin: "0 0 12px",
-            fontSize: isSmallMobile ? "1.25rem" : "1.5rem",
-            lineHeight: 1.25,
-          }}
-        >
-          {exercise.title}
-        </h3>
-
-        <p
-          style={{
-            margin: "0 0 22px",
-            lineHeight: 1.75,
-            color: "rgba(255,255,255,0.82)",
-            fontSize: isMobile ? "0.96rem" : "1rem",
-          }}
-        >
-          {exercise.description}
-        </p>
-
-        <div style={{ marginBottom: "20px" }}>
-          <div
-            className="eyebrow"
-            style={{ marginBottom: "8px", fontSize: "0.72rem" }}
+        <div style={{ minWidth: 0 }}>
+          <h3
+            style={{
+              margin: "0 0 7px",
+              fontSize: "1.12rem",
+              lineHeight: 1.25,
+              letterSpacing: "-0.02em",
+              color: "#ffffff",
+            }}
           >
-            Primary Focus
-          </div>
+            {exercise.name}
+          </h3>
+
           <p
             style={{
               margin: 0,
-              color: "rgba(255,255,255,0.9)",
-              lineHeight: 1.7,
-              fontSize: isMobile ? "0.95rem" : "1rem",
+              color: "rgba(255,255,255,0.52)",
+              fontSize: "0.95rem",
+              lineHeight: 1.45,
             }}
           >
-            {exercise.focus}
+            {muscleText || exercise.category || "Exercise"}
           </p>
-        </div>
 
-        <div style={{ marginBottom: "22px" }}>
           <div
-            className="eyebrow"
-            style={{ marginBottom: "10px", fontSize: "0.72rem" }}
-          >
-            Coaching Cues
-          </div>
-
-          <ul
             style={{
-              margin: 0,
-              paddingLeft: "20px",
-              lineHeight: 1.9,
-              color: "rgba(255,255,255,0.9)",
-              fontSize: isMobile ? "0.95rem" : "1rem",
+              display: "flex",
+              gap: "8px",
+              flexWrap: "wrap",
+              marginTop: "8px",
             }}
           >
-            {exercise.cues.map((cue, index) => (
-              <li key={index}>{cue}</li>
-            ))}
-          </ul>
-        </div>
+            {exercise.premium && (
+              <MiniTag label={isLocked ? "Locked Premium" : "Premium"} />
+            )}
 
-        <button
+            {exercise.romBias && exercise.romBias !== "-" && (
+              <MiniTag label={exercise.romBias} />
+            )}
+          </div>
+        </div>
+      </button>
+
+      <button
+        id={`star-${exercise.id}`}
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggleFavorite();
+
+          // ✨ pop animation
+          const el = e.currentTarget;
+          el.animate(
+            [
+              { transform: "scale(1)" },
+              { transform: "scale(1.35)" },
+              { transform: "scale(1)" },
+            ],
+            { duration: 200, easing: "ease-out" }
+          );
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = isFavorite
+            ? "rgba(47,140,255,0.22)"
+            : "rgba(255,255,255,0.08)";
+          e.currentTarget.style.transform = "translateY(-1px)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = isFavorite
+            ? "rgba(47,140,255,0.14)"
+            : "rgba(255,255,255,0.03)";
+          e.currentTarget.style.transform = "translateY(0)";
+        }}
+        onMouseDown={(e) => {
+          e.currentTarget.style.transform = "scale(0.9)";
+        }}
+        onMouseUp={(e) => {
+          e.currentTarget.style.transform = "scale(1)";
+        }}
+        aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+        style={{
+          width: "40px",
+          height: "40px",
+          borderRadius: "999px",
+          border: isFavorite
+            ? "1px solid rgba(47,140,255,0.4)"
+            : "1px solid rgba(255,255,255,0.08)",
+          background: isFavorite
+            ? "rgba(47,140,255,0.14)"
+            : "rgba(255,255,255,0.03)",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          transition: "all 0.2s ease",
+        }}
+      >
+        <Star
+          size={22}
+          color={isFavorite ? "#2f8cff" : "rgba(255,255,255,0.35)"}
+          fill={isFavorite ? "#2f8cff" : "transparent"}
           style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
-            padding: "12px 18px",
+            transition: "all 0.2s ease",
+          }}
+        />
+      </button>
+    </div>
+  );
+}
+
+function MiniTag({ label }) {
+  return (
+    <span
+      style={{
+        padding: "4px 8px",
+        borderRadius: "999px",
+        background: "rgba(122,168,255,0.1)",
+        color: "#dbe8ff",
+        border: "1px solid rgba(122,168,255,0.16)",
+        fontSize: "0.72rem",
+        fontWeight: 700,
+      }}
+    >
+      {label}
+    </span>
+  );
+}
+
+function FilterChip({ children, onRemove }) {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "8px",
+        padding: "8px 11px",
+        borderRadius: "999px",
+        background: "rgba(122,168,255,0.11)",
+        border: "1px solid rgba(122,168,255,0.22)",
+        color: "#dbe8ff",
+        fontSize: "12.5px",
+        fontWeight: 700,
+      }}
+    >
+      {children}
+
+      <button
+        type="button"
+        onClick={onRemove}
+        style={{
+          width: "18px",
+          height: "18px",
+          borderRadius: "999px",
+          border: "none",
+          background: "rgba(255,255,255,0.08)",
+          color: "#ffffff",
+          cursor: "pointer",
+          lineHeight: 1,
+        }}
+      >
+        ×
+      </button>
+    </span>
+  );
+}
+
+function BottomSheet({ title, children, onClose }) {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 999,
+        background: "rgba(0,0,0,0.55)",
+        display: "flex",
+        alignItems: "flex-end",
+        justifyContent: "center",
+      }}
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: "100%",
+          maxWidth: "760px",
+          maxHeight: "82vh",
+          overflowY: "auto",
+          borderTopLeftRadius: "34px",
+          borderTopRightRadius: "34px",
+          background:
+            "linear-gradient(180deg, rgba(31,41,55,0.98), rgba(15,23,42,0.98))",
+          border: "1px solid rgba(255,255,255,0.08)",
+          padding: "28px 24px 32px",
+          boxShadow: "0 -20px 80px rgba(0,0,0,0.45)",
+        }}
+      >
+        <div
+          style={{
+            width: "54px",
+            height: "5px",
             borderRadius: "999px",
-            background: "transparent",
-            color: "#ffffff",
-            border: "1px solid rgba(122,168,255,0.35)",
-            fontWeight: 700,
-            cursor: "pointer",
-            width: isSmallMobile ? "100%" : "auto",
-            justifyContent: "center",
+            background: "rgba(255,255,255,0.18)",
+            margin: "0 auto 22px",
+          }}
+        />
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "16px",
+            alignItems: "center",
+            marginBottom: "22px",
           }}
         >
-          View Exercise <ArrowRight size={16} />
-        </button>
+          <h2 style={{ margin: 0, fontSize: "2rem" }}>{title}</h2>
+
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              border: "none",
+              background: "rgba(255,255,255,0.08)",
+              color: "#fff",
+              width: "38px",
+              height: "38px",
+              borderRadius: "999px",
+              cursor: "pointer",
+            }}
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {children}
       </div>
+    </div>
+  );
+}
+
+function SheetOption({ active, children, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "16px 0",
+        border: "none",
+        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        background: "transparent",
+        color: active ? "#ffffff" : "rgba(255,255,255,0.82)",
+        fontSize: "1.05rem",
+        fontWeight: active ? 800 : 600,
+        cursor: "pointer",
+        textAlign: "left",
+      }}
+    >
+      {children}
+      {active && <Check size={22} color="#2f8cff" />}
+    </button>
+  );
+}
+
+function SelectGroup({ title, value, options, onChange }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div
+      style={{
+        marginBottom: "14px",
+        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        paddingBottom: "10px",
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "14px",
+          border: "none",
+          background: "transparent",
+          color: "#ffffff",
+          padding: "14px 0",
+          cursor: "pointer",
+          textAlign: "left",
+        }}
+      >
+        <div>
+          <div
+            style={{
+              fontSize: "1.05rem",
+              fontWeight: 800,
+            }}
+          >
+            {title}
+          </div>
+
+          <div
+            style={{
+              marginTop: "4px",
+              fontSize: "0.88rem",
+              color: "rgba(255,255,255,0.52)",
+              fontWeight: 600,
+            }}
+          >
+            {value === "All" ? "All" : value}
+          </div>
+        </div>
+
+        <span
+          style={{
+            transform: open ? "rotate(180deg)" : "rotate(0deg)",
+            transition: "transform 0.2s ease",
+            color: "rgba(255,255,255,0.55)",
+            fontSize: "1.2rem",
+          }}
+        >
+          ⌄
+        </span>
+      </button>
+
+      {open && (
+        <div style={{ paddingBottom: "8px" }}>
+          {options.map((option) => (
+            <SheetOption
+              key={option}
+              active={value === option}
+              onClick={() => onChange(option)}
+            >
+              {option}
+            </SheetOption>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
 export default function ExerciseLibraryPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [screenWidth, setScreenWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 1200
@@ -369,344 +472,726 @@ export default function ExerciseLibraryPage() {
 
   useEffect(() => {
     const handleResize = () => setScreenWidth(window.innerWidth);
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const isTablet = screenWidth <= 1024;
   const isMobile = screenWidth <= 768;
-  const isSmallMobile = screenWidth <= 560;
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("az");
+  const [showSortSheet, setShowSortSheet] = useState(false);
+  const [showFilterSheet, setShowFilterSheet] = useState(false);
+  const [showLockedSheet, setShowLockedSheet] = useState(false);
+
   const [activeCategory, setActiveCategory] = useState("All");
+  const [selectedPrimaryMuscle, setSelectedPrimaryMuscle] = useState("All");
+  const [selectedEquipment, setSelectedEquipment] = useState("All");
+  const [selectedMovementPattern, setSelectedMovementPattern] = useState("All");
+  const [selectedRomBias, setSelectedRomBias] = useState("All");
+  const [showPremiumOnly, setShowPremiumOnly] = useState(false);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+
+  const [favorites, setFavorites] = useState(() => {
+    try {
+      const stored = localStorage.getItem("exerciseFavorites");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [isMember, setIsMember] = useState(() => {
+    try {
+      return localStorage.getItem("isMember") === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    const access = searchParams.get("access");
+    const stripeSuccess = searchParams.get("stripe_success");
+
+    if (access === "member" || stripeSuccess === "true") {
+      setIsMember(true);
+      localStorage.setItem("isMember", "true");
+
+      searchParams.delete("access");
+      searchParams.delete("stripe_success");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+  useEffect(() => {
+    localStorage.setItem("exerciseFavorites", JSON.stringify(favorites));
+  }, [favorites]);
+
+  useEffect(() => {
+    localStorage.setItem("isMember", isMember ? "true" : "false");
+  }, [isMember]);
+
+  const toggleFavorite = (id) => {
+    setFavorites((prev) =>
+      prev.includes(id) ? prev.filter((favId) => favId !== id) : [...prev, id]
+    );
+  };
+  const categories = useMemo(() => {
+    const values = Array.from(
+      new Set(exerciseDatabase.map((ex) => ex.category).filter(Boolean))
+    ).sort();
+    return ["All", ...values];
+  }, []);
+
+  const primaryMuscleOptions = useMemo(() => {
+    const values = new Set();
+    exerciseDatabase.forEach((ex) =>
+      ex.primaryMuscles?.forEach((m) => values.add(m))
+    );
+    return ["All", ...Array.from(values).sort()];
+  }, []);
+
+  const equipmentOptions = useMemo(() => {
+    const values = new Set();
+    exerciseDatabase.forEach((ex) =>
+      ex.equipment?.forEach((e) => values.add(e))
+    );
+    return ["All", ...Array.from(values).sort()];
+  }, []);
+
+  const movementPatternOptions = useMemo(() => {
+    const values = Array.from(
+      new Set(exerciseDatabase.map((ex) => ex.movementPattern).filter(Boolean))
+    ).sort();
+    return ["All", ...values];
+  }, []);
+
+  const romBiasOptions = useMemo(() => {
+    const values = Array.from(
+      new Set(
+        exerciseDatabase
+          .map((ex) => ex.romBias?.trim())
+          .filter((v) => v && v !== "-" && v.toLowerCase() !== "dynamic")
+      )
+    ).sort();
+
+    return ["All", ...values];
+  }, []);
 
   const filteredExercises = useMemo(() => {
-    return exercises.filter((exercise) => {
-      const matchesCategory =
-        activeCategory === "All" || exercise.category === activeCategory;
+    const search = searchTerm.trim().toLowerCase();
 
-      const search = searchTerm.toLowerCase();
+    return exerciseDatabase.filter((exercise) => {
+      const isUserFavorite = favorites.includes(exercise.id);
+
       const matchesSearch =
-        exercise.title.toLowerCase().includes(search) ||
-        exercise.category.toLowerCase().includes(search) ||
-        exercise.focus.toLowerCase().includes(search) ||
-        exercise.description.toLowerCase().includes(search);
+        !search ||
+        exercise.name?.toLowerCase().includes(search) ||
+        exercise.category?.toLowerCase().includes(search) ||
+        exercise.mainTrainingApplication?.toLowerCase().includes(search) ||
+        exercise.movementPattern?.toLowerCase().includes(search) ||
+        exercise.primaryMuscles?.some((m) =>
+          m.toLowerCase().includes(search)
+        ) ||
+        exercise.secondaryMuscles?.some((m) =>
+          m.toLowerCase().includes(search)
+        ) ||
+        exercise.equipment?.some((e) => e.toLowerCase().includes(search));
 
-      return matchesCategory && matchesSearch;
+      return (
+        matchesSearch &&
+        (activeCategory === "All" || exercise.category === activeCategory) &&
+        (selectedPrimaryMuscle === "All" ||
+          exercise.primaryMuscles?.includes(selectedPrimaryMuscle)) &&
+        (selectedEquipment === "All" ||
+          exercise.equipment?.includes(selectedEquipment)) &&
+        (selectedMovementPattern === "All" ||
+          exercise.movementPattern === selectedMovementPattern) &&
+        (selectedRomBias === "All" || exercise.romBias === selectedRomBias) &&
+        (!showPremiumOnly || exercise.premium === true) &&
+        (!showFavoritesOnly || isUserFavorite)
+      );
     });
-  }, [searchTerm, activeCategory]);
+  }, [
+    searchTerm,
+    activeCategory,
+    selectedPrimaryMuscle,
+    selectedEquipment,
+    selectedMovementPattern,
+    selectedRomBias,
+    showPremiumOnly,
+    showFavoritesOnly,
+    favorites,
+  ]);
+
+  const sortedExercises = useMemo(() => {
+    const list = [...filteredExercises];
+
+    list.sort((a, b) => {
+      const aFav = favorites.includes(a.id) ? 1 : 0;
+      const bFav = favorites.includes(b.id) ? 1 : 0;
+
+      if (bFav !== aFav) return bFav - aFav;
+
+      if (sortBy === "az") return a.name.localeCompare(b.name);
+      if (sortBy === "za") return b.name.localeCompare(a.name);
+      if (sortBy === "favorites") return bFav - aFav;
+
+      if (sortBy === "muscle") {
+        return (a.primaryMuscles?.[0] || "").localeCompare(
+          b.primaryMuscles?.[0] || ""
+        );
+      }
+
+      return 0;
+    });
+
+    return list;
+  }, [filteredExercises, sortBy, favorites]);
+
+  const sortLabel =
+    sortBy === "az"
+      ? "A-Z"
+      : sortBy === "za"
+      ? "Z-A"
+      : sortBy === "favorites"
+      ? "Favorites"
+      : "Muscle Group";
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setActiveCategory("All");
+    setSelectedPrimaryMuscle("All");
+    setSelectedEquipment("All");
+    setSelectedMovementPattern("All");
+    setSelectedRomBias("All");
+    setShowPremiumOnly(false);
+    setShowFavoritesOnly(false);
+  };
+
+  const hasActiveFilters =
+    searchTerm.trim() ||
+    activeCategory !== "All" ||
+    selectedPrimaryMuscle !== "All" ||
+    selectedEquipment !== "All" ||
+    selectedMovementPattern !== "All" ||
+    selectedRomBias !== "All" ||
+    showPremiumOnly ||
+    showFavoritesOnly;
+
+  const handleLockedExercise = () => {
+    setShowLockedSheet(true);
+  };
 
   return (
-    <div className="site">
-      <div
+    <div
+      className="site"
+      style={{
+        minHeight: "100vh",
+        background:
+          "radial-gradient(circle at top, rgba(47,140,255,0.12), transparent 32%), #05070c",
+      }}
+    >
+      <section
         style={{
-          maxWidth: 1180,
+          padding: isMobile ? "22px 18px 80px" : "34px 28px 90px",
+          maxWidth: "980px",
           margin: "0 auto",
-          padding: isMobile ? "16px 16px 0" : "20px 20px 0",
         }}
       >
         <button
+          type="button"
           onClick={() => navigate("/")}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(120,160,255,0.18)";
+            e.currentTarget.style.background = "rgba(122,168,255,0.18)";
+            e.currentTarget.style.transform = "translateY(-1px)";
+            e.currentTarget.style.boxShadow =
+              "0 8px 20px rgba(122,168,255,0.18)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = "rgba(120,160,255,0.12)";
+            e.currentTarget.style.background = "rgba(122,168,255,0.1)";
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "none";
           }}
           style={{
-            marginBottom: "16px",
-            padding: isSmallMobile ? "10px 14px" : "10px 16px",
+            marginBottom: "24px",
+            padding: "10px 16px",
             borderRadius: "999px",
-            border: "1px solid rgba(120,160,255,0.25)",
-            background: "rgba(120,160,255,0.12)",
-            color: "#CFE0FF",
-            fontWeight: 600,
+            border: "1px solid rgba(122,168,255,0.25)",
+            background: "rgba(122,168,255,0.1)",
+            color: "#dbe8ff",
+            fontWeight: 700,
             cursor: "pointer",
-            fontSize: isMobile ? "14px" : "15px",
-            width: isSmallMobile ? "100%" : "auto",
+            transition: "all 0.2s ease",
           }}
         >
           ← Back to Homepage
         </button>
-      </div>
 
-      <section
-        className="section"
-        style={{
-          paddingTop: isSmallMobile ? "46px" : isMobile ? "60px" : "88px",
-          paddingBottom: isMobile ? "28px" : "36px",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
-          background:
-            "radial-gradient(circle at top left, rgba(122,168,255,0.16) 0%, transparent 30%), linear-gradient(180deg, rgba(11,16,25,1) 0%, rgba(9,13,21,1) 100%)",
-        }}
-      >
-        <div className="container">
-          <div className="narrow" style={{ maxWidth: "900px" }}>
-            <p className="eyebrow">Biomechanics &amp; U Movement Library</p>
+        <div style={{ marginBottom: "28px" }}>
+          <p className="eyebrow">Biomechanics &amp; U Movement Library</p>
 
-            <h1
-              style={{
-                marginBottom: "18px",
-                fontSize: isSmallMobile
-                  ? "clamp(2rem, 10vw, 2.8rem)"
-                  : undefined,
-                lineHeight: isMobile ? 1.05 : undefined,
-              }}
-            >
-              Learn the movements.
-              <span style={{ display: "block", opacity: 0.72 }}>
-                Train with more precision.
-              </span>
-            </h1>
+          <h1
+            style={{
+              margin: "0 0 12px",
+              fontSize: isMobile ? "2.45rem" : "3.5rem",
+              lineHeight: 1,
+            }}
+          >
+            Exercises
+          </h1>
 
-            <p
-              style={{
-                fontSize: isMobile ? "1rem" : "1.08rem",
-                lineHeight: 1.8,
-                maxWidth: "840px",
-                opacity: 0.9,
-                marginBottom: "0",
-              }}
-            >
-              A premium exercise library built to help clients understand
-              technique, improve execution, and move with greater confidence.
-              Explore strength, mobility, corrective, and performance-based
-              movements through a biomechanics-first lens.
-            </p>
-          </div>
+          <p
+            style={{
+              margin: 0,
+              maxWidth: "760px",
+              color: "rgba(255,255,255,0.72)",
+              lineHeight: 1.7,
+              fontSize: "1.02rem",
+            }}
+          >
+            Search, sort, and filter the movement library by muscle, equipment,
+            movement pattern, ROM bias, premium access, and your saved
+            favorites.
+          </p>
+
+          <p
+            style={{
+              marginTop: "12px",
+              color: "rgba(255,255,255,0.5)",
+              fontSize: "0.92rem",
+              lineHeight: 1.6,
+              maxWidth: "640px",
+            }}
+          >
+            This library is constantly being updated with new exercises,
+            coaching cues, and video demonstrations. More content is added
+            regularly to improve your training experience.
+          </p>
         </div>
-      </section>
 
-      <section
-        className="section"
-        style={{
-          paddingTop: isMobile ? "24px" : "34px",
-          paddingBottom: "30px",
-        }}
-      >
-        <div className="container">
+        {!isMember && (
           <div
-            className="glass-box"
             style={{
-              padding: isSmallMobile ? "16px" : isMobile ? "18px" : "22px",
-              borderRadius: isSmallMobile ? "22px" : "26px",
+              marginBottom: "22px",
+              padding: "15px 16px",
+              borderRadius: "14px",
+              background: "rgba(122,168,255,0.08)",
+              border: "1px solid rgba(122,168,255,0.2)",
+              color: "#dbe8ff",
+              fontSize: "0.92rem",
+              lineHeight: 1.6,
+            }}
+          >
+            <strong>Premium exercises are locked.</strong> Unlock full access
+            with coaching or a monthly subscription.
+          </div>
+        )}
+
+        {isMember && (
+          <div
+            style={{
+              marginBottom: "22px",
+              padding: "15px 16px",
+              borderRadius: "14px",
+              background: "rgba(47,140,255,0.1)",
+              border: "1px solid rgba(47,140,255,0.25)",
+              color: "#dbe8ff",
+              fontSize: "0.92rem",
+              lineHeight: 1.6,
+            }}
+          >
+            <strong>Premium access active.</strong> All exercises are unlocked.
+          </div>
+        )}
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 58px",
+            gap: "12px",
+            marginBottom: "22px",
+          }}
+        >
+          <div style={{ position: "relative" }}>
+            <Search
+              size={23}
+              color="rgba(255,255,255,0.35)"
+              style={{
+                position: "absolute",
+                left: "18px",
+                top: "50%",
+                transform: "translateY(-50%)",
+              }}
+            />
+
+            <input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search"
+              style={{
+                width: "100%",
+                height: "58px",
+                borderRadius: "10px",
+                border: "1px solid rgba(255,255,255,0.08)",
+                background: "rgba(255,255,255,0.1)",
+                color: "#ffffff",
+                padding: "0 18px 0 54px",
+                fontSize: "1.15rem",
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowFilterSheet(true)}
+            style={{
+              width: "58px",
+              height: "58px",
+              borderRadius: "10px",
               border: "1px solid rgba(255,255,255,0.08)",
-              marginBottom: "28px",
+              background: "rgba(255,255,255,0.1)",
+              color: "#ffffff",
+              cursor: "pointer",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "16px",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <div
-                style={{
-                  position: "relative",
-                  minWidth: isSmallMobile ? "100%" : "280px",
-                  flex: "1 1 320px",
-                  width: isSmallMobile ? "100%" : "auto",
-                }}
-              >
-                <Search
-                  size={18}
-                  color="rgba(255,255,255,0.55)"
-                  style={{
-                    position: "absolute",
-                    left: "16px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                  }}
-                />
+            <SlidersHorizontal size={28} />
+          </button>
+        </div>
 
-                <input
-                  type="text"
-                  placeholder="Search exercises..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "14px 16px 14px 44px",
-                    borderRadius: "16px",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    background: "rgba(255,255,255,0.05)",
-                    color: "#ffffff",
-                    fontSize: isMobile ? "16px" : "1rem",
-                    outline: "none",
-                  }}
-                />
-              </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "14px",
+            flexWrap: "wrap",
+            marginBottom: "18px",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setShowSortSheet(true)}
+            style={topControlStyle}
+          >
+            <ArrowUpDown size={22} />
+            SORT BY: {sortLabel}
+          </button>
 
-              <div
-                className="category-scroll"
-                style={{
-                  display: "flex",
-                  gap: "10px",
-                  flexWrap: isMobile ? "nowrap" : "wrap",
-                  flex: "1 1 420px",
-                  width: isSmallMobile ? "100%" : "auto",
-                  overflowX: isMobile ? "auto" : "visible",
-                  overflowY: "hidden",
-                  WebkitOverflowScrolling: "touch",
-                  scrollbarWidth: "none",
-                  msOverflowStyle: "none",
-                  paddingBottom: isMobile ? "4px" : "0",
-                }}
-              >
-                {categories.map((category) => {
-                  const active = activeCategory === category;
-
-                  return (
-                    <button
-                      key={category}
-                      onClick={() => setActiveCategory(category)}
-                      style={{
-                        padding: isSmallMobile ? "10px 12px" : "10px 14px",
-                        borderRadius: "999px",
-                        border: active
-                          ? "1px solid rgba(122,168,255,0.5)"
-                          : "1px solid rgba(255,255,255,0.08)",
-                        background: active
-                          ? "rgba(122,168,255,0.14)"
-                          : "rgba(255,255,255,0.04)",
-                        color: active ? "#dbe8ff" : "#ffffff",
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        fontSize: isMobile ? "13px" : "14px",
-                        flex: "0 0 auto",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {category}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          <div style={{ marginBottom: "24px" }}>
-            <p
-              style={{
-                margin: 0,
-                opacity: 0.76,
-                fontSize: isMobile ? "14px" : "16px",
-              }}
-            >
-              Showing{" "}
-              <strong style={{ color: "#ffffff" }}>
-                {filteredExercises.length}
-              </strong>{" "}
-              exercise{filteredExercises.length !== 1 ? "s" : ""}
-            </p>
-          </div>
-
-          <div
-            className="card-grid"
+          <button
+            type="button"
+            onClick={() => setShowFavoritesOnly((prev) => !prev)}
             style={{
-              gridTemplateColumns: isSmallMobile
-                ? "1fr"
-                : isMobile
-                ? "1fr"
-                : "repeat(auto-fit, minmax(320px, 1fr))",
-              gap: isMobile ? "18px" : "24px",
+              ...topControlStyle,
+              color: showFavoritesOnly ? "#2f8cff" : "rgba(255,255,255,0.55)",
             }}
           >
-            {filteredExercises.map((exercise) => (
-              <ExerciseCard
+            <Star size={25} fill={showFavoritesOnly ? "#2f8cff" : "none"} />
+            FAVORITES
+          </button>
+        </div>
+
+        {hasActiveFilters && (
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "8px",
+              marginBottom: "18px",
+            }}
+          >
+            {searchTerm.trim() && (
+              <FilterChip onRemove={() => setSearchTerm("")}>
+                Search: {searchTerm.trim()}
+              </FilterChip>
+            )}
+
+            {activeCategory !== "All" && (
+              <FilterChip onRemove={() => setActiveCategory("All")}>
+                Category: {activeCategory}
+              </FilterChip>
+            )}
+
+            {selectedPrimaryMuscle !== "All" && (
+              <FilterChip onRemove={() => setSelectedPrimaryMuscle("All")}>
+                Muscle: {selectedPrimaryMuscle}
+              </FilterChip>
+            )}
+
+            {selectedEquipment !== "All" && (
+              <FilterChip onRemove={() => setSelectedEquipment("All")}>
+                Equipment: {selectedEquipment}
+              </FilterChip>
+            )}
+
+            {selectedMovementPattern !== "All" && (
+              <FilterChip onRemove={() => setSelectedMovementPattern("All")}>
+                Pattern: {selectedMovementPattern}
+              </FilterChip>
+            )}
+
+            {selectedRomBias !== "All" && (
+              <FilterChip onRemove={() => setSelectedRomBias("All")}>
+                ROM: {selectedRomBias}
+              </FilterChip>
+            )}
+
+            {showPremiumOnly && (
+              <FilterChip onRemove={() => setShowPremiumOnly(false)}>
+                Premium Only
+              </FilterChip>
+            )}
+
+            {showFavoritesOnly && (
+              <FilterChip onRemove={() => setShowFavoritesOnly(false)}>
+                Favorites
+              </FilterChip>
+            )}
+          </div>
+        )}
+
+        <p
+          style={{
+            margin: "0 0 12px",
+            color: "rgba(255,255,255,0.58)",
+            fontWeight: 700,
+          }}
+        >
+          Showing {sortedExercises.length} exercise
+          {sortedExercises.length !== 1 ? "s" : ""}
+        </p>
+
+        <div>
+          {sortedExercises.length > 0 ? (
+            sortedExercises.map((exercise) => (
+              <ExerciseListRow
                 key={exercise.id}
                 exercise={exercise}
-                isMobile={isMobile}
-                isSmallMobile={isSmallMobile}
+                isFavorite={favorites.includes(exercise.id)}
+                onToggleFavorite={() => toggleFavorite(exercise.id)}
+                isMember={isMember}
+                onLockedExercise={handleLockedExercise}
+                onViewExercise={() => navigate(`/exercise/${exercise.id}`)}
               />
-            ))}
-          </div>
+            ))
+          ) : (
+            <div
+              style={{
+                padding: "34px 20px",
+                borderRadius: "20px",
+                border: "1px solid rgba(255,255,255,0.08)",
+                background: "rgba(255,255,255,0.04)",
+                textAlign: "center",
+              }}
+            >
+              <h3 style={{ marginTop: 0 }}>No exercises found</h3>
+
+              <p style={{ color: "rgba(255,255,255,0.65)" }}>
+                Try clearing filters or searching something broader.
+              </p>
+
+              <button
+                type="button"
+                onClick={clearFilters}
+                style={primaryButton}
+              >
+                Clear Filters
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
-      <section
-        className="section"
-        style={{
-          paddingTop: "18px",
-          paddingBottom: isMobile ? "70px" : "100px",
-        }}
-      >
-        <div className="container">
-          <div
-            className="glass-box"
-            style={{
-              maxWidth: "980px",
-              margin: "0 auto",
-              padding: isSmallMobile
-                ? "24px 18px"
-                : isMobile
-                ? "30px 22px"
-                : "42px 28px",
-              textAlign: "center",
-              borderRadius: isSmallMobile ? "24px" : "32px",
-              border: "1px solid rgba(122,168,255,0.18)",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.28)",
-              background:
-                "linear-gradient(180deg, rgba(122,168,255,0.08) 0%, rgba(255,255,255,0.03) 100%)",
-            }}
+      {showSortSheet && (
+        <BottomSheet title="Sort By" onClose={() => setShowSortSheet(false)}>
+          <SheetOption
+            active={sortBy === "favorites"}
+            onClick={() => setSortBy("favorites")}
           >
-            <p className="eyebrow">Premium Coaching Experience</p>
+            Favorites
+          </SheetOption>
 
-            <h2
-              style={{
-                marginBottom: "18px",
-                fontSize: isSmallMobile ? "1.8rem" : undefined,
-                lineHeight: isMobile ? 1.15 : undefined,
-              }}
+          <SheetOption active={sortBy === "az"} onClick={() => setSortBy("az")}>
+            Alphabetical (a-z)
+          </SheetOption>
+
+          <SheetOption active={sortBy === "za"} onClick={() => setSortBy("za")}>
+            Alphabetical (z-a)
+          </SheetOption>
+
+          <SheetOption
+            active={sortBy === "muscle"}
+            onClick={() => setSortBy("muscle")}
+          >
+            Muscle group
+          </SheetOption>
+
+          <button
+            type="button"
+            onClick={() => setShowSortSheet(false)}
+            style={{ ...primaryButton, marginTop: "24px" }}
+          >
+            Apply
+          </button>
+        </BottomSheet>
+      )}
+
+      {showFilterSheet && (
+        <BottomSheet title="Filters" onClose={() => setShowFilterSheet(false)}>
+          <SelectGroup
+            title="Category"
+            value={activeCategory}
+            options={categories}
+            onChange={setActiveCategory}
+          />
+
+          <SelectGroup
+            title="Primary Muscle"
+            value={selectedPrimaryMuscle}
+            options={primaryMuscleOptions}
+            onChange={setSelectedPrimaryMuscle}
+          />
+
+          <SelectGroup
+            title="Equipment"
+            value={selectedEquipment}
+            options={equipmentOptions}
+            onChange={setSelectedEquipment}
+          />
+
+          <SelectGroup
+            title="Movement Pattern"
+            value={selectedMovementPattern}
+            options={movementPatternOptions}
+            onChange={setSelectedMovementPattern}
+          />
+
+          <SelectGroup
+            title="ROM Bias"
+            value={selectedRomBias}
+            options={romBiasOptions}
+            onChange={setSelectedRomBias}
+          />
+
+          <SheetOption
+            active={showPremiumOnly}
+            onClick={() => setShowPremiumOnly((prev) => !prev)}
+          >
+            Premium only
+          </SheetOption>
+
+          <SheetOption
+            active={showFavoritesOnly}
+            onClick={() => setShowFavoritesOnly((prev) => !prev)}
+          >
+            Favorites only
+          </SheetOption>
+
+          <div style={{ display: "grid", gap: "12px", marginTop: "24px" }}>
+            <button
+              type="button"
+              onClick={() => setShowFilterSheet(false)}
+              style={primaryButton}
             >
-              Want a program built around your body, goals, and movement needs?
-            </h2>
+              Apply
+            </button>
+
+            <button
+              type="button"
+              onClick={clearFilters}
+              style={secondaryButton}
+            >
+              Clear Filters
+            </button>
+          </div>
+        </BottomSheet>
+      )}
+
+      {showLockedSheet && (
+        <BottomSheet
+          title="Unlock Premium Exercises"
+          onClose={() => setShowLockedSheet(false)}
+        >
+          <div style={{ textAlign: "center" }}>
+            <Crown size={44} color="#2f8cff" />
+
+            <h2 style={{ marginBottom: "10px" }}>Get Full Access</h2>
 
             <p
               style={{
-                maxWidth: "760px",
-                margin: "0 auto 28px",
-                fontSize: isMobile ? "1rem" : "1.05rem",
-                lineHeight: 1.8,
-                opacity: 0.9,
+                margin: "0 auto 22px",
+                maxWidth: "520px",
+                color: "rgba(255,255,255,0.7)",
+                lineHeight: 1.7,
               }}
             >
-              Apply for coaching to get individualized programming, movement
-              analysis, exercise selection, and progress tracking designed for
-              real results.
+              Unlock all premium exercises, coaching cues, and video
+              demonstrations through coaching or a monthly subscription.
             </p>
 
-            <div
-              style={{
-                display: "flex",
-                gap: "14px",
-                justifyContent: "center",
-                flexWrap: "wrap",
-                flexDirection: isSmallMobile ? "column" : "row",
+            <button
+              type="button"
+              onClick={() => {
+                setShowLockedSheet(false);
+                window.location.href = "/#pricing";
               }}
+              style={primaryButton}
             >
-              <Link
-                to="/apply"
-                className="btn btn-primary"
-                style={{ width: isSmallMobile ? "100%" : "auto" }}
-              >
-                Apply for Coaching
-              </Link>
+              View Coaching Options
+            </button>
 
-              <a
-                href="/#pricing"
-                className="btn btn-secondary"
-                style={{ width: isSmallMobile ? "100%" : "auto" }}
-              >
-                View Coaching Options
-              </a>
-            </div>
+            <button
+              type="button"
+              onClick={() => setShowLockedSheet(false)}
+              style={{ ...secondaryButton, marginTop: "12px" }}
+            >
+              Keep Browsing
+            </button>
           </div>
-        </div>
-      </section>
+        </BottomSheet>
+      )}
     </div>
   );
 }
+
+const topControlStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "10px",
+  border: "none",
+  background: "transparent",
+  color: "rgba(255,255,255,0.55)",
+  fontWeight: 900,
+  fontSize: "0.95rem",
+  letterSpacing: "0.04em",
+  cursor: "pointer",
+  padding: "8px 0",
+};
+
+const primaryButton = {
+  width: "100%",
+  padding: "16px 18px",
+  borderRadius: "10px",
+  border: "none",
+  background: "#168cff",
+  color: "#ffffff",
+  fontSize: "1rem",
+  fontWeight: 900,
+  cursor: "pointer",
+  textTransform: "uppercase",
+  letterSpacing: "0.04em",
+};
+
+const secondaryButton = {
+  width: "100%",
+  padding: "15px 18px",
+  borderRadius: "10px",
+  border: "1px solid rgba(255,255,255,0.12)",
+  background: "rgba(255,255,255,0.06)",
+  color: "#ffffff",
+  fontSize: "1rem",
+  fontWeight: 800,
+  cursor: "pointer",
+};
