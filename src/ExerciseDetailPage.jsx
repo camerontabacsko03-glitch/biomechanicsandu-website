@@ -1,6 +1,15 @@
 import React, { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Lock, ArrowLeft } from "lucide-react";
+import {
+  ArrowLeft,
+  Lock,
+  Crown,
+  Play,
+  Check,
+  Sparkles,
+  Dumbbell,
+  ShieldCheck,
+} from "lucide-react";
 import exerciseDatabase from "./data/exerciseDatabase";
 
 function getEmbedUrl(url) {
@@ -17,102 +26,91 @@ function getEmbedUrl(url) {
   return url;
 }
 
-function Video({ url }) {
-  const embed = getEmbedUrl(url);
+function ExerciseVideo({ url, title }) {
+  const embedUrl = getEmbedUrl(url);
 
-  if (!embed) {
+  if (!embedUrl) {
     return (
-      <div style={{ height: 300, display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.6 }}>
-        No video
+      <div style={styles.videoPlaceholder}>
+        <Play size={34} color="rgba(255,255,255,0.35)" />
+        <p>No video added yet</p>
       </div>
     );
   }
 
   return (
-    <div style={{ position: "relative", paddingBottom: "56.25%" }}>
+    <div style={styles.videoFrame}>
       <iframe
-        src={embed}
-        style={{ position: "absolute", width: "100%", height: "100%", border: 0 }}
+        src={embedUrl}
+        title={title || "Exercise tutorial video"}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowFullScreen
+        style={styles.iframe}
       />
     </div>
   );
 }
 
-function Paywall({ compact, onUnlock }) {
+function PremiumPaywall({ title = "Premium Section Locked", onUnlock, compact = false }) {
   if (compact) {
     return (
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        background: "#0e1625",
-        padding: 12,
-        borderRadius: 10
-      }}>
-        <div style={{
-          background: "#168cff",
-          padding: 6,
-          borderRadius: 6
-        }}>
-          <Lock size={14}/>
+      <div style={styles.compactPaywall}>
+        <div style={styles.compactLockIcon}>
+          <Lock size={15} />
         </div>
 
-        <button
-          onClick={onUnlock}
-          style={{
-            background: "#168cff",
-            border: "none",
-            color: "#fff",
-            padding: "6px 10px",
-            fontSize: 12,
-            cursor: "pointer"
-          }}
-        >
-          Unlock
-        </button>
+        <div style={{ flex: 1 }}>
+          <p style={styles.compactPaywallKicker}>Premium</p>
+          <h3 style={styles.compactPaywallTitle}>{title}</h3>
+
+          <button type="button" onClick={onUnlock} style={styles.compactUnlockButton}>
+            View Coaching Options
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{
-      padding: 20,
-      background: "#0e1625",
-      borderRadius: 16,
-      textAlign: "center"
-    }}>
-      <Lock size={20} style={{ marginBottom: 10 }}/>
-      <h3>Premium Content Locked</h3>
-      <p style={{ opacity: 0.7 }}>
-        Unlock full tutorials, cues, and coaching notes.
+    <div style={styles.paywall}>
+      <div style={styles.paywallGlow} />
+
+      <div style={styles.paywallIcon}>
+        <Lock size={22} />
+      </div>
+
+      <p style={styles.paywallKicker}>Premium Coaching Library</p>
+
+      <h3 style={styles.paywallTitle}>{title}</h3>
+
+      <p style={styles.paywallText}>
+        Unlock the full Biomechanics &amp; U exercise library with multi-angle
+        tutorials, common mistakes, progressions, regressions, and Cam’s notes.
       </p>
 
-      <button
-        onClick={onUnlock}
-        style={{
-          marginTop: 10,
-          background: "#168cff",
-          border: "none",
-          color: "#fff",
-          padding: "10px 14px",
-          cursor: "pointer"
-        }}
-      >
+      <div style={styles.paywallBenefits}>
+        <span>
+          <Check size={16} /> Multi-angle video
+        </span>
+        <span>
+          <Check size={16} /> Coaching cues
+        </span>
+        <span>
+          <Check size={16} /> Cam’s notes
+        </span>
+      </div>
+
+      <button type="button" onClick={onUnlock} style={styles.unlockButton}>
         View Coaching Options
       </button>
     </div>
   );
 }
 
-function Panel({ title, children }) {
+function InfoPanel({ title, children }) {
   return (
-    <div style={{
-      background: "#111",
-      padding: 20,
-      borderRadius: 12
-    }}>
-      <h3 style={{ marginBottom: 10 }}>{title}</h3>
+    <div style={styles.panel}>
+      <h2 style={styles.panelTitle}>{title}</h2>
       {children}
     </div>
   );
@@ -126,141 +124,693 @@ export default function ExerciseDetailPage() {
   const isMember = localStorage.getItem("isMember") === "true";
 
   const exercise = useMemo(() => {
-    return exerciseDatabase.find(e => e.id === id);
+    return exerciseDatabase.find((ex) => ex.id === id);
   }, [id]);
 
   const goToPricing = () => {
     window.location.href = "/#pricing";
   };
 
-  if (!exercise) return <div>Not found</div>;
+  if (!exercise) {
+    return (
+      <div style={styles.page}>
+        <div style={styles.shell}>
+          <button
+            type="button"
+            onClick={() => navigate("/exercise-library")}
+            style={styles.backButton}
+          >
+            <ArrowLeft size={18} />
+            Back to Library
+          </button>
 
-  const videos = {
+          <div style={styles.panel}>
+            <h2>Exercise not found</h2>
+            <p style={styles.muted}>
+              This exercise could not be found in the Biomechanics &amp; U library.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const videos = exercise.videos || {
     main: exercise.videoUrl,
     side: exercise.sideVideoUrl,
     slow: exercise.slowVideoUrl,
     mistake: exercise.mistakeVideoUrl,
-    corrected: exercise.correctedVideoUrl
+    corrected: exercise.correctedVideoUrl,
   };
 
-  const availableVideos = Object.entries(videos).filter(([_, v]) => v);
-  const currentVideo = videos[activeVideo];
+  const videoTabs = [
+    { key: "main", label: "Main Demo", premium: false },
+    { key: "side", label: "Side Angle", premium: true },
+    { key: "slow", label: "Slow Rep", premium: true },
+    { key: "mistake", label: "Common Mistake", premium: true },
+    { key: "corrected", label: "Corrected Version", premium: true },
+  ].filter((tab) => videos?.[tab.key]);
 
-  const lockedVideo = activeVideo !== "main" && !isMember;
+  const activeTab = videoTabs.find((tab) => tab.key === activeVideo);
+  const activeVideoLocked = activeTab?.premium && !isMember;
+  const currentVideo = videos?.[activeVideo] || videos?.main || exercise.videoUrl;
+
+  const primaryMuscles = exercise.primaryMuscles?.join(", ") || "—";
+  const secondaryMuscles = exercise.secondaryMuscles?.join(", ") || "—";
+  const equipment = Array.isArray(exercise.equipment)
+    ? exercise.equipment.join(", ")
+    : exercise.equipment || "—";
 
   return (
-    <div style={{
-      padding: "100px 20px",
-      background: "#05070d",
-      minHeight: "100vh",
-      color: "#fff"
-    }}>
-      <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-
+    <div style={styles.page}>
+      <div style={styles.shell}>
         <button
+          type="button"
           onClick={() => navigate("/exercise-library")}
-          style={{ marginBottom: 20 }}
+          style={styles.backButton}
         >
-          <ArrowLeft size={16}/> Back
+          <ArrowLeft size={18} />
+          Back to Library
         </button>
 
-        <h1 style={{ fontSize: 32, marginBottom: 20 }}>
-          {exercise.name}
-        </h1>
+        <section style={styles.hero}>
+          <div>
+            <p style={styles.kicker}>
+              {exercise.premium ? "Premium Exercise" : "Exercise Tutorial"}
+            </p>
 
-        {/* VIDEO */}
-        <div style={{ marginBottom: 30 }}>
-          <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
-            {availableVideos.map(([key]) => (
-              <button
-                key={key}
-                onClick={() => setActiveVideo(key)}
-                style={{
-                  padding: "6px 10px",
-                  background: activeVideo === key ? "#168cff" : "#111",
-                  border: "none",
-                  color: "#fff",
-                  cursor: "pointer"
-                }}
-              >
-                {key}
-              </button>
-            ))}
+            <h1 style={styles.title}>{exercise.name}</h1>
+
+            <p style={styles.description}>
+              {exercise.shortDescription ||
+                exercise.mainTrainingApplication ||
+                "A Biomechanics & U exercise tutorial built to help you train with better structure, cleaner execution, and more intent."}
+            </p>
+
+            <div style={styles.metaRow}>
+              <span style={styles.metaPill}>
+                <Dumbbell size={15} /> Primary: {primaryMuscles}
+              </span>
+
+              <span style={styles.metaPill}>
+                Pattern: {exercise.movementPattern || "—"}
+              </span>
+
+              <span style={styles.metaPill}>
+                ROM Bias: {exercise.romBias || "—"}
+              </span>
+            </div>
           </div>
 
-          {lockedVideo ? (
-            <Paywall onUnlock={goToPricing}/>
-          ) : (
-            <Video url={currentVideo}/>
+          <div style={styles.heroCard}>
+            <div style={styles.heroCardIcon}>
+              {isMember ? <ShieldCheck size={24} /> : <Crown size={24} />}
+            </div>
+
+            <p style={styles.cardKicker}>
+              {isMember ? "Premium Access Active" : "Upgrade Available"}
+            </p>
+
+            <h3 style={styles.cardTitle}>Built Around Your Structure</h3>
+
+            <p style={styles.cardText}>
+              Full tutorials include video breakdowns, common mistakes,
+              progressions, regressions, and Cam’s notes.
+            </p>
+
+            {!isMember && (
+              <button type="button" onClick={goToPricing} style={styles.cardButton}>
+                View Coaching Options
+              </button>
+            )}
+          </div>
+        </section>
+
+        <section style={styles.videoSection}>
+          <div style={styles.sectionTop}>
+            <div>
+              <p style={styles.kicker}>Tutorial System</p>
+              <h2 style={styles.sectionTitle}>Video Breakdown</h2>
+            </div>
+
+            {!isMember && (
+              <span style={styles.lockBadge}>
+                <Lock size={14} /> Premium clips locked
+              </span>
+            )}
+          </div>
+
+          {videoTabs.length > 0 && (
+            <div style={styles.tabs}>
+              {videoTabs.map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setActiveVideo(tab.key)}
+                  style={{
+                    ...styles.tab,
+                    ...(activeVideo === tab.key ? styles.activeTab : {}),
+                  }}
+                >
+                  {tab.label}
+                  {tab.premium && !isMember && <Lock size={13} />}
+                </button>
+              ))}
+            </div>
           )}
-        </div>
 
-        {/* GRID */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))",
-          gap: 20
-        }}>
-          <Panel title="Application">
-            {exercise.mainTrainingApplication}
-          </Panel>
+          {activeVideoLocked ? (
+            <PremiumPaywall
+              title={`${activeTab?.label || "Premium Clip"} Locked`}
+              onUnlock={goToPricing}
+            />
+          ) : (
+            <ExerciseVideo url={currentVideo} title={exercise.name} />
+          )}
+        </section>
 
-          <Panel title="Muscles">
-            {exercise.primaryMuscles?.join(", ")}
-          </Panel>
-
-          <Panel title="Biomechanics">
-            {exercise.biomechanicsBreakdown || "—"}
-          </Panel>
-
-          <Panel title="Cues">
-            <ul>
-              {(exercise.cues || []).map((c,i)=><li key={i}>{c}</li>)}
-            </ul>
-          </Panel>
-
-          <Panel title="Mistakes">
-            {isMember ? (
-              <ul>
-                {(exercise.commonMistakes || []).map((c,i)=><li key={i}>{c}</li>)}
-              </ul>
-            ) : <Paywall compact onUnlock={goToPricing}/>}
-          </Panel>
-
-          <Panel title="Progressions">
-            {isMember ? (
-              <ul>
-                {(exercise.progressions || []).map((c,i)=><li key={i}>{c}</li>)}
-              </ul>
-            ) : <Paywall compact onUnlock={goToPricing}/>}
-          </Panel>
-
-          <Panel title="Regressions">
-            {isMember ? (
-              <ul>
-                {(exercise.regressions || []).map((c,i)=><li key={i}>{c}</li>)}
-              </ul>
-            ) : <Paywall compact onUnlock={goToPricing}/>}
-          </Panel>
-        </div>
-
-        {/* CAM NOTES */}
-        <div style={{
-          marginTop: 30,
-          background: "#111",
-          padding: 20,
-          borderRadius: 12
-        }}>
-          <h2>Cam’s Notes</h2>
+        <section style={styles.camsNotes}>
+          <div style={styles.notesHeader}>
+            <Sparkles size={24} color="#56a6ff" />
+            <div>
+              <p style={styles.kicker}>Cam’s Notes</p>
+              <h2 style={styles.panelTitle}>Coach’s Application</h2>
+            </div>
+          </div>
 
           {isMember ? (
-            <p>{exercise.camsNotes || "—"}</p>
+            <p style={styles.muted}>
+              {exercise.camsNote ||
+                exercise.camsNotes ||
+                "Use this exercise when the goal is to create better execution, cleaner tension, and a setup that fits the individual instead of forcing the individual into the exercise."}
+            </p>
           ) : (
-            <Paywall onUnlock={goToPricing}/>
+            <PremiumPaywall title="Cam’s Notes Locked" onUnlock={goToPricing} />
           )}
-        </div>
+        </section>
 
+        <section style={styles.topGrid}>
+          <InfoPanel title="Training Application">
+            <p style={styles.muted}>
+              {exercise.mainTrainingApplication ||
+                "Use this exercise where it best fits the goal of the training session."}
+            </p>
+          </InfoPanel>
+
+          <InfoPanel title="Muscle Focus">
+            <p style={styles.muted}>
+              <strong>Primary:</strong> {primaryMuscles}
+              <br />
+              <strong>Secondary:</strong> {secondaryMuscles}
+            </p>
+          </InfoPanel>
+
+          <InfoPanel title="Exercise Details">
+            <p style={styles.muted}>
+              <strong>Movement Pattern:</strong>{" "}
+              {exercise.movementPattern || "—"}
+              <br />
+              <strong>ROM Bias:</strong> {exercise.romBias || "—"}
+              <br />
+              <strong>Equipment:</strong> {equipment}
+            </p>
+          </InfoPanel>
+
+          <InfoPanel title="Biomechanics Breakdown">
+            <p style={styles.muted}>
+              {exercise.biomechanicsBreakdown ||
+                exercise.breakdown ||
+                "This section explains what the exercise is meant to bias, what positions matter most, and how to perform it with better intent."}
+            </p>
+          </InfoPanel>
+
+          <InfoPanel title="Key Coaching Cues">
+            <ul style={styles.list}>
+              {(exercise.cues || exercise.keyCues || []).length > 0 ? (
+                (exercise.cues || exercise.keyCues).map((cue, index) => (
+                  <li key={index}>{cue}</li>
+                ))
+              ) : (
+                <>
+                  <li>Control the rep.</li>
+                  <li>Own the working range.</li>
+                  <li>Keep tension on the target muscle.</li>
+                </>
+              )}
+            </ul>
+          </InfoPanel>
+        </section>
+
+        <section style={styles.lockedRow}>
+          <InfoPanel title="Common Mistakes">
+            {isMember ? (
+              <ul style={styles.list}>
+                {(exercise.commonMistakes || []).length > 0 ? (
+                  exercise.commonMistakes.map((mistake, index) => (
+                    <li key={index}>{mistake}</li>
+                  ))
+                ) : (
+                  <>
+                    <li>Using too much load too early.</li>
+                    <li>Losing position to chase reps.</li>
+                    <li>Letting momentum replace control.</li>
+                  </>
+                )}
+              </ul>
+            ) : (
+              <PremiumPaywall
+                compact
+                title="Common Mistakes Locked"
+                onUnlock={goToPricing}
+              />
+            )}
+          </InfoPanel>
+
+          <InfoPanel title="Progressions">
+            {isMember ? (
+              <ul style={styles.list}>
+                {(exercise.progressions || []).length > 0 ? (
+                  exercise.progressions.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))
+                ) : (
+                  <>
+                    <li>Add load.</li>
+                    <li>Add reps.</li>
+                    <li>Add a pause or slower tempo.</li>
+                  </>
+                )}
+              </ul>
+            ) : (
+              <PremiumPaywall
+                compact
+                title="Progressions Locked"
+                onUnlock={goToPricing}
+              />
+            )}
+          </InfoPanel>
+
+          <InfoPanel title="Regressions">
+            {isMember ? (
+              <ul style={styles.list}>
+                {(exercise.regressions || []).length > 0 ? (
+                  exercise.regressions.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))
+                ) : (
+                  <>
+                    <li>Reduce load.</li>
+                    <li>Use a more stable variation.</li>
+                    <li>Shorten the range of motion temporarily.</li>
+                  </>
+                )}
+              </ul>
+            ) : (
+              <PremiumPaywall
+                compact
+                title="Regressions Locked"
+                onUnlock={goToPricing}
+              />
+            )}
+          </InfoPanel>
+        </section>
       </div>
     </div>
   );
+}
+
+const glassPanel = {
+  border: "1px solid rgba(255,255,255,0.11)",
+  background:
+    "linear-gradient(145deg, rgba(255,255,255,0.11), rgba(255,255,255,0.045))",
+  boxShadow: "0 24px 80px rgba(0,0,0,0.28)",
+  backdropFilter: "blur(18px)",
+  borderRadius: "28px",
+};
+
+const styles = {
+  page: {
+    minHeight: "100vh",
+    padding: "110px 20px 80px",
+    background:
+      "radial-gradient(circle at top left, rgba(47,134,255,0.22), transparent 34%), radial-gradient(circle at bottom right, rgba(255,255,255,0.08), transparent 28%), #05070d",
+    color: "#fff",
+  },
+  shell: {
+    maxWidth: "1180px",
+    margin: "0 auto",
+  },
+  backButton: {
+    marginBottom: "28px",
+    padding: "10px 16px",
+    borderRadius: "999px",
+    border: "1px solid rgba(255,255,255,0.14)",
+    background: "rgba(255,255,255,0.06)",
+    color: "#fff",
+    fontWeight: 800,
+    cursor: "pointer",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "8px",
+  },
+  hero: {
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1.4fr) minmax(280px, 380px)",
+    gap: "28px",
+    marginBottom: "28px",
+  },
+  kicker: {
+    margin: "0 0 10px",
+    color: "#56a6ff",
+    fontSize: "0.78rem",
+    fontWeight: 900,
+    letterSpacing: "0.16em",
+    textTransform: "uppercase",
+  },
+  title: {
+    margin: 0,
+    fontSize: "clamp(2.4rem, 6vw, 5rem)",
+    lineHeight: 0.95,
+    letterSpacing: "-0.06em",
+  },
+  description: {
+    maxWidth: "760px",
+    margin: "22px 0 0",
+    color: "rgba(255,255,255,0.72)",
+    fontSize: "1.05rem",
+    lineHeight: 1.7,
+  },
+  metaRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "10px",
+    marginTop: "22px",
+  },
+  metaPill: {
+    padding: "10px 13px",
+    border: "1px solid rgba(86,166,255,0.22)",
+    borderRadius: "999px",
+    background: "rgba(255,255,255,0.06)",
+    color: "rgba(255,255,255,0.82)",
+    fontSize: "0.85rem",
+    fontWeight: 750,
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "7px",
+  },
+  heroCard: {
+    ...glassPanel,
+    padding: "28px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
+  },
+  heroCardIcon: {
+    width: "48px",
+    height: "48px",
+    display: "grid",
+    placeItems: "center",
+    borderRadius: "16px",
+    background: "rgba(86,166,255,0.16)",
+    color: "#56a6ff",
+    marginBottom: "16px",
+  },
+  cardKicker: {
+    margin: 0,
+    color: "#56a6ff",
+    fontSize: "0.8rem",
+    fontWeight: 900,
+    letterSpacing: "0.13em",
+    textTransform: "uppercase",
+  },
+  cardTitle: {
+    margin: "12px 0 10px",
+    fontSize: "1.7rem",
+    letterSpacing: "-0.04em",
+  },
+  cardText: {
+    margin: 0,
+    color: "rgba(255,255,255,0.68)",
+    lineHeight: 1.65,
+  },
+  cardButton: {
+    marginTop: "18px",
+    padding: "13px 16px",
+    borderRadius: "999px",
+    border: "none",
+    background: "#168cff",
+    color: "#fff",
+    fontWeight: 900,
+    cursor: "pointer",
+  },
+  videoSection: {
+    ...glassPanel,
+    padding: "22px",
+    marginBottom: "22px",
+  },
+  sectionTop: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: "16px",
+    alignItems: "center",
+    marginBottom: "16px",
+  },
+  sectionTitle: {
+    margin: 0,
+    fontSize: "1.45rem",
+    letterSpacing: "-0.04em",
+  },
+  lockBadge: {
+    padding: "8px 11px",
+    borderRadius: "999px",
+    background: "rgba(86,166,255,0.12)",
+    border: "1px solid rgba(86,166,255,0.24)",
+    color: "rgba(255,255,255,0.82)",
+    fontSize: "0.78rem",
+    fontWeight: 850,
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+  },
+  tabs: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "10px",
+    marginBottom: "18px",
+  },
+  tab: {
+    border: "1px solid rgba(255,255,255,0.12)",
+    background: "rgba(255,255,255,0.06)",
+    color: "rgba(255,255,255,0.76)",
+    borderRadius: "999px",
+    padding: "10px 14px",
+    fontWeight: 850,
+    cursor: "pointer",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "7px",
+  },
+  activeTab: {
+    background: "rgba(86,166,255,0.18)",
+    borderColor: "rgba(86,166,255,0.4)",
+    color: "#fff",
+  },
+  videoFrame: {
+    position: "relative",
+    width: "100%",
+    paddingBottom: "56.25%",
+    overflow: "hidden",
+    borderRadius: "22px",
+    background: "#000",
+  },
+  iframe: {
+    position: "absolute",
+    inset: 0,
+    width: "100%",
+    height: "100%",
+    border: 0,
+  },
+  videoPlaceholder: {
+    minHeight: "360px",
+    borderRadius: "22px",
+    border: "1px dashed rgba(255,255,255,0.18)",
+    color: "rgba(255,255,255,0.55)",
+    display: "grid",
+    placeItems: "center",
+    textAlign: "center",
+  },
+  camsNotes: {
+    ...glassPanel,
+    marginBottom: "22px",
+    padding: "30px",
+    border: "1px solid rgba(86,166,255,0.24)",
+    background:
+      "radial-gradient(circle at top left, rgba(86,166,255,0.18), transparent 34%), linear-gradient(145deg, rgba(255,255,255,0.11), rgba(255,255,255,0.045))",
+  },
+  notesHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "14px",
+    marginBottom: "16px",
+  },
+  topGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    gap: "22px",
+    marginBottom: "22px",
+  },
+  lockedRow: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: "22px",
+  },
+  panel: {
+    ...glassPanel,
+    padding: "26px",
+  },
+  panelTitle: {
+    margin: "0 0 14px",
+    fontSize: "1.35rem",
+    letterSpacing: "-0.04em",
+  },
+  muted: {
+    color: "rgba(255,255,255,0.72)",
+    lineHeight: 1.7,
+  },
+  list: {
+    margin: 0,
+    paddingLeft: "20px",
+    color: "rgba(255,255,255,0.72)",
+    lineHeight: 1.7,
+  },
+  paywall: {
+    position: "relative",
+    overflow: "hidden",
+    padding: "28px",
+    borderRadius: "24px",
+    border: "1px solid rgba(86,166,255,0.28)",
+    background:
+      "linear-gradient(145deg, rgba(86,166,255,0.18), rgba(255,255,255,0.055))",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
+  },
+  paywallGlow: {
+    position: "absolute",
+    width: "180px",
+    height: "180px",
+    borderRadius: "999px",
+    background: "rgba(86,166,255,0.18)",
+    filter: "blur(40px)",
+    top: "-70px",
+    right: "-60px",
+  },
+  paywallIcon: {
+    position: "relative",
+    width: "46px",
+    height: "46px",
+    display: "grid",
+    placeItems: "center",
+    borderRadius: "16px",
+    background: "rgba(86,166,255,0.18)",
+    color: "#ffffff",
+    marginBottom: "14px",
+  },
+  paywallKicker: {
+    position: "relative",
+    margin: "0 0 8px",
+    color: "#56a6ff",
+    fontSize: "0.75rem",
+    fontWeight: 900,
+    letterSpacing: "0.14em",
+    textTransform: "uppercase",
+  },
+  paywallTitle: {
+    position: "relative",
+    margin: "0 0 10px",
+    fontSize: "1.45rem",
+    letterSpacing: "-0.04em",
+  },
+  paywallText: {
+    position: "relative",
+    margin: "0 0 18px",
+    color: "rgba(255,255,255,0.7)",
+    lineHeight: 1.65,
+  },
+  paywallBenefits: {
+    position: "relative",
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "8px",
+    marginBottom: "20px",
+  },
+  unlockButton: {
+    position: "relative",
+    width: "100%",
+    padding: "15px 18px",
+    borderRadius: "14px",
+    border: "none",
+    background: "#168cff",
+    color: "#ffffff",
+    fontSize: "0.95rem",
+    fontWeight: 950,
+    cursor: "pointer",
+    textTransform: "uppercase",
+    letterSpacing: "0.04em",
+  },
+  compactPaywall: {
+    display: "flex",
+    alignItems: "center",
+    gap: "14px",
+    padding: "16px",
+    borderRadius: "18px",
+    border: "1px solid rgba(86,166,255,0.24)",
+    background:
+      "linear-gradient(145deg, rgba(86,166,255,0.14), rgba(255,255,255,0.045))",
+  },
+  compactLockIcon: {
+    width: "38px",
+    height: "38px",
+    minWidth: "38px",
+    display: "grid",
+    placeItems: "center",
+    borderRadius: "12px",
+    background: "rgba(86,166,255,0.18)",
+    color: "#ffffff",
+  },
+  compactPaywallKicker: {
+    margin: "0 0 4px",
+    color: "#56a6ff",
+    fontSize: "0.68rem",
+    fontWeight: 900,
+    letterSpacing: "0.12em",
+    textTransform: "uppercase",
+  },
+  compactPaywallTitle: {
+    margin: "0 0 10px",
+    fontSize: "0.98rem",
+    letterSpacing: "-0.02em",
+  },
+  compactUnlockButton: {
+    width: "100%",
+    padding: "10px 12px",
+    borderRadius: "12px",
+    border: "none",
+    background: "#168cff",
+    color: "#ffffff",
+    fontSize: "0.78rem",
+    fontWeight: 950,
+    cursor: "pointer",
+    textTransform: "uppercase",
+    letterSpacing: "0.04em",
+  },
+};
+
+if (typeof window !== "undefined") {
+  const style = document.createElement("style");
+  style.innerHTML = `
+    @media (max-width: 900px) {
+      [data-exercise-locked-row] {
+        grid-template-columns: 1fr !important;
+      }
+    }
+  `;
 }
