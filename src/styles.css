@@ -2149,3 +2149,130 @@ a {
 .category-scroll::-webkit-scrollbar {
   display: none;
 }
+const styles = {
+  page: {
+    padding: "100px 20px",
+    background: "#05070d",
+    color: "#fff",
+    minHeight: "100vh"
+  },
+  shell: {
+    maxWidth: "1100px",
+    margin: "0 auto"
+  },
+  back: {
+    marginBottom: "20px"
+  },
+  title: {
+    fontSize: "2.5rem",
+    marginBottom: "20px"
+  },
+  videoSection: {
+    marginBottom: "30px"
+  },
+  tabs: {
+    display: "flex",
+    gap: "10px",
+    marginBottom: "10px"
+  },
+  tab: {
+    padding: "8px 12px",
+    background: "#111",
+    border: "none",
+    color: "#fff",
+    cursor: "pointer"
+  },
+  activeTab: {
+    background: "#168cff"
+  },
+  videoFrame: {
+    position: "relative",
+    paddingBottom: "56.25%"
+  },
+  iframe: {
+    position: "absolute",
+    width: "100%",
+    height: "100%"
+  },
+  videoPlaceholder: {
+    height: "300px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))",
+    gap: "20px"
+  },
+  panel: {
+    background: "#111",
+    padding: "20px",
+    borderRadius: "12px"
+  },
+  panelTitle: {
+    marginBottom: "10px"
+  },
+
+  paywall: {
+    padding: "20px",
+    background: "#0e1625",
+    borderRadius: "16px",
+    textAlign: "center"
+  },
+  paywallIcon: {
+    marginBottom: "10px"
+  },
+  paywallTitle: {
+    marginBottom: "10px"
+  },
+  paywallText: {
+    marginBottom: "10px"
+  },
+  paywallBenefits: {
+    marginBottom: "15px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px"
+  },
+  unlockButton: {
+    background: "#168cff",
+    color: "#fff",
+    border: "none",
+    padding: "10px 14px",
+    cursor: "pointer"
+  },
+
+  compactPaywall: {
+    display: "flex",
+    gap: "10px",
+    alignItems: "center",
+    background: "#0e1625",
+    padding: "12px",
+    borderRadius: "10px"
+  },
+  compactLockIcon: {
+    background: "#168cff",
+    padding: "6px",
+    borderRadius: "6px"
+  },
+  compactPaywallTitle: {
+    fontSize: "0.9rem",
+    marginBottom: "6px"
+  },
+  compactUnlockButton: {
+    fontSize: "0.8rem",
+    padding: "6px 10px",
+    background: "#168cff",
+    border: "none",
+    color: "#fff",
+    cursor: "pointer"
+  },
+
+  notes: {
+    marginTop: "30px",
+    background: "#111",
+    padding: "20px",
+    borderRadius: "12px"
+  }
+};
