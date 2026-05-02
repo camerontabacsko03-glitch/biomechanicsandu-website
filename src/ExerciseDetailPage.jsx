@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Lock, ArrowLeft, Check } from "lucide-react";
+import { Lock, ArrowLeft } from "lucide-react";
 import exerciseDatabase from "./data/exerciseDatabase";
 
 function getEmbedUrl(url) {
@@ -17,64 +17,88 @@ function getEmbedUrl(url) {
   return url;
 }
 
-function ExerciseVideo({ url }) {
-  const embedUrl = getEmbedUrl(url);
+function Video({ url }) {
+  const embed = getEmbedUrl(url);
 
-  if (!embedUrl) {
-    return <div style={styles.videoPlaceholder}>No video</div>;
-  }
-
-  return (
-    <div style={styles.videoFrame}>
-      <iframe src={embedUrl} style={styles.iframe} allowFullScreen />
-    </div>
-  );
-}
-
-function PremiumPaywall({ title, compact, onUnlock }) {
-  if (compact) {
+  if (!embed) {
     return (
-      <div style={styles.compactPaywall}>
-        <div style={styles.compactLockIcon}>
-          <Lock size={16} />
-        </div>
-
-        <div style={{ flex: 1 }}>
-          <h3 style={styles.compactPaywallTitle}>{title}</h3>
-
-          <button onClick={onUnlock} style={styles.compactUnlockButton}>
-            Unlock
-          </button>
-        </div>
+      <div style={{ height: 300, display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.6 }}>
+        No video
       </div>
     );
   }
 
   return (
-    <div style={styles.paywall}>
-      <div style={styles.paywallIcon}>
-        <Lock size={22} />
+    <div style={{ position: "relative", paddingBottom: "56.25%" }}>
+      <iframe
+        src={embed}
+        style={{ position: "absolute", width: "100%", height: "100%", border: 0 }}
+        allowFullScreen
+      />
+    </div>
+  );
+}
+
+function Paywall({ compact, onUnlock }) {
+  if (compact) {
+    return (
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        background: "#0e1625",
+        padding: 12,
+        borderRadius: 10
+      }}>
+        <div style={{
+          background: "#168cff",
+          padding: 6,
+          borderRadius: 6
+        }}>
+          <Lock size={14}/>
+        </div>
+
+        <button
+          onClick={onUnlock}
+          style={{
+            background: "#168cff",
+            border: "none",
+            color: "#fff",
+            padding: "6px 10px",
+            fontSize: 12,
+            cursor: "pointer"
+          }}
+        >
+          Unlock
+        </button>
       </div>
+    );
+  }
 
-      <h3 style={styles.paywallTitle}>{title}</h3>
-
-      <p style={styles.paywallText}>
-        Unlock full exercise tutorials, breakdowns, and coaching notes.
+  return (
+    <div style={{
+      padding: 20,
+      background: "#0e1625",
+      borderRadius: 16,
+      textAlign: "center"
+    }}>
+      <Lock size={20} style={{ marginBottom: 10 }}/>
+      <h3>Premium Content Locked</h3>
+      <p style={{ opacity: 0.7 }}>
+        Unlock full tutorials, cues, and coaching notes.
       </p>
 
-      <div style={styles.paywallBenefits}>
-        <span>
-          <Check size={14} /> Video breakdowns
-        </span>
-        <span>
-          <Check size={14} /> Coaching cues
-        </span>
-        <span>
-          <Check size={14} /> Cam’s notes
-        </span>
-      </div>
-
-      <button onClick={onUnlock} style={styles.unlockButton}>
+      <button
+        onClick={onUnlock}
+        style={{
+          marginTop: 10,
+          background: "#168cff",
+          border: "none",
+          color: "#fff",
+          padding: "10px 14px",
+          cursor: "pointer"
+        }}
+      >
         View Coaching Options
       </button>
     </div>
@@ -83,8 +107,12 @@ function PremiumPaywall({ title, compact, onUnlock }) {
 
 function Panel({ title, children }) {
   return (
-    <div style={styles.panel}>
-      <h2 style={styles.panelTitle}>{title}</h2>
+    <div style={{
+      background: "#111",
+      padding: 20,
+      borderRadius: 12
+    }}>
+      <h3 style={{ marginBottom: 10 }}>{title}</h3>
       {children}
     </div>
   );
@@ -98,7 +126,7 @@ export default function ExerciseDetailPage() {
   const isMember = localStorage.getItem("isMember") === "true";
 
   const exercise = useMemo(() => {
-    return exerciseDatabase.find((ex) => ex.id === id);
+    return exerciseDatabase.find(e => e.id === id);
   }, [id]);
 
   const goToPricing = () => {
@@ -112,36 +140,47 @@ export default function ExerciseDetailPage() {
     side: exercise.sideVideoUrl,
     slow: exercise.slowVideoUrl,
     mistake: exercise.mistakeVideoUrl,
-    corrected: exercise.correctedVideoUrl,
+    corrected: exercise.correctedVideoUrl
   };
 
-  const videoTabs = Object.entries(videos).filter(([_, v]) => v);
-
+  const availableVideos = Object.entries(videos).filter(([_, v]) => v);
   const currentVideo = videos[activeVideo];
-  const isLockedVideo = activeVideo !== "main" && !isMember;
+
+  const lockedVideo = activeVideo !== "main" && !isMember;
 
   return (
-    <div style={styles.page}>
-      <div style={styles.shell}>
+    <div style={{
+      padding: "100px 20px",
+      background: "#05070d",
+      minHeight: "100vh",
+      color: "#fff"
+    }}>
+      <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+
         <button
           onClick={() => navigate("/exercise-library")}
-          style={styles.back}
+          style={{ marginBottom: 20 }}
         >
-          <ArrowLeft size={16} /> Back
+          <ArrowLeft size={16}/> Back
         </button>
 
-        <h1 style={styles.title}>{exercise.name}</h1>
+        <h1 style={{ fontSize: 32, marginBottom: 20 }}>
+          {exercise.name}
+        </h1>
 
         {/* VIDEO */}
-        <div style={styles.videoSection}>
-          <div style={styles.tabs}>
-            {videoTabs.map(([key]) => (
+        <div style={{ marginBottom: 30 }}>
+          <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+            {availableVideos.map(([key]) => (
               <button
                 key={key}
                 onClick={() => setActiveVideo(key)}
                 style={{
-                  ...styles.tab,
-                  ...(activeVideo === key ? styles.activeTab : {}),
+                  padding: "6px 10px",
+                  background: activeVideo === key ? "#168cff" : "#111",
+                  border: "none",
+                  color: "#fff",
+                  cursor: "pointer"
                 }}
               >
                 {key}
@@ -149,85 +188,78 @@ export default function ExerciseDetailPage() {
             ))}
           </div>
 
-          {isLockedVideo ? (
-            <PremiumPaywall
-              title="Premium Video Locked"
-              onUnlock={goToPricing}
-            />
+          {lockedVideo ? (
+            <Paywall onUnlock={goToPricing}/>
           ) : (
-            <ExerciseVideo url={currentVideo} />
+            <Video url={currentVideo}/>
           )}
         </div>
 
         {/* GRID */}
-        <div style={styles.grid}>
-          <Panel title="Training Application">
-            <p>{exercise.mainTrainingApplication}</p>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))",
+          gap: 20
+        }}>
+          <Panel title="Application">
+            {exercise.mainTrainingApplication}
           </Panel>
 
-          <Panel title="Muscle Focus">
-            <p>{exercise.primaryMuscles?.join(", ")}</p>
+          <Panel title="Muscles">
+            {exercise.primaryMuscles?.join(", ")}
           </Panel>
 
           <Panel title="Biomechanics">
-            <p>{exercise.biomechanicsBreakdown || "—"}</p>
+            {exercise.biomechanicsBreakdown || "—"}
           </Panel>
 
           <Panel title="Cues">
             <ul>
-              {(exercise.cues || []).map((c, i) => (
-                <li key={i}>{c}</li>
-              ))}
+              {(exercise.cues || []).map((c,i)=><li key={i}>{c}</li>)}
             </ul>
           </Panel>
 
-          <Panel title="Common Mistakes">
+          <Panel title="Mistakes">
             {isMember ? (
               <ul>
-                {(exercise.commonMistakes || []).map((c, i) => (
-                  <li key={i}>{c}</li>
-                ))}
+                {(exercise.commonMistakes || []).map((c,i)=><li key={i}>{c}</li>)}
               </ul>
-            ) : (
-              <PremiumPaywall compact title="Locked" onUnlock={goToPricing} />
-            )}
+            ) : <Paywall compact onUnlock={goToPricing}/>}
           </Panel>
 
           <Panel title="Progressions">
             {isMember ? (
               <ul>
-                {(exercise.progressions || []).map((c, i) => (
-                  <li key={i}>{c}</li>
-                ))}
+                {(exercise.progressions || []).map((c,i)=><li key={i}>{c}</li>)}
               </ul>
-            ) : (
-              <PremiumPaywall compact title="Locked" onUnlock={goToPricing} />
-            )}
+            ) : <Paywall compact onUnlock={goToPricing}/>}
           </Panel>
 
           <Panel title="Regressions">
             {isMember ? (
               <ul>
-                {(exercise.regressions || []).map((c, i) => (
-                  <li key={i}>{c}</li>
-                ))}
+                {(exercise.regressions || []).map((c,i)=><li key={i}>{c}</li>)}
               </ul>
-            ) : (
-              <PremiumPaywall compact title="Locked" onUnlock={goToPricing} />
-            )}
+            ) : <Paywall compact onUnlock={goToPricing}/>}
           </Panel>
         </div>
 
         {/* CAM NOTES */}
-        <div style={styles.notes}>
+        <div style={{
+          marginTop: 30,
+          background: "#111",
+          padding: 20,
+          borderRadius: 12
+        }}>
           <h2>Cam’s Notes</h2>
 
           {isMember ? (
             <p>{exercise.camsNotes || "—"}</p>
           ) : (
-            <PremiumPaywall title="Cam’s Notes Locked" onUnlock={goToPricing} />
+            <Paywall onUnlock={goToPricing}/>
           )}
         </div>
+
       </div>
     </div>
   );
