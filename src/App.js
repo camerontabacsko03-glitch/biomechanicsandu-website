@@ -513,7 +513,14 @@ function HomePage() {
             <p className="eyebrow">Biomechanics-Based Hypertrophy Coaching</p>
 
             <h1>
-              Build Muscle. <span>Move Better. Stay Strong.</span>
+              <span className="hero-blue">BUILD</span>{" "}
+              <span className="hero-white">Muscle.</span>
+              <br />
+              <span className="hero-blue">MOVE</span>{" "}
+              <span className="hero-white">Better.</span>
+              <br />
+              <span className="hero-blue">STAY</span>{" "}
+              <span className="hero-white">Strong.</span>
             </h1>
 
             <p className="hero-text">
