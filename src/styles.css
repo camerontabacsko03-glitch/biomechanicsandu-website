@@ -278,8 +278,8 @@ a {
   align-items: center;
 }
 
-.eyebrow {
-  color: #60a5fa;
+..eyebrow {
+  color: #3478f6;
   text-transform: uppercase;
   letter-spacing: 0.22em;
   font-size: 12px;
@@ -287,22 +287,30 @@ a {
   margin-bottom: 16px;
 }
 
-.center {
-  text-align: center;
-}
-
 .hero h1 {
   font-size: clamp(44px, 7vw, 78px);
-  line-height: 0.95;
+  line-height: 1.02;
   margin: 0;
   font-weight: 900;
   max-width: 760px;
   letter-spacing: -0.03em;
 }
 
-.hero h1 span,
+.hero-white {
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.08);
+}
+
+.hero-blue {
+  color: #3478f6;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 8px rgba(52, 120, 246, 0.4),
+    0 0 18px rgba(52, 120, 246, 0.25), 0 0 32px rgba(52, 120, 246, 0.12);
+}
+
 .blue {
-  color: #3b82f6;
+  color: #3478f6;
 }
 
 .hero-text {
