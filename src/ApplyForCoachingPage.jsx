@@ -129,16 +129,16 @@ export default function ApplyForCoachingPage() {
     {
       key: "performance",
       title: "Performance",
-      subtitle: "More support",
+      subtitle: "Hybrid coaching",
       description:
-        "For clients who want deeper coaching, more feedback, and a higher-touch performance-focused process.",
+        "For clients who want deeper coaching, weekly feedback, and up to 1 reserved in-person biomechanics session per week.",
     },
     {
       key: "elite",
       title: "Elite",
-      subtitle: "Highest level",
+      subtitle: "Priority hybrid coaching",
       description:
-        "For serious clients who want the most complete coaching experience, attention to detail, and premium support.",
+        "For serious clients who want the most complete coaching experience, priority scheduling, and up to 2 in-person sessions per week when available.",
     },
   ];
 
@@ -1491,5 +1491,8 @@ export default function ApplyForCoachingPage() {
         </div>
       </section>
     </div>
+  );
+}
+
   );
 }
