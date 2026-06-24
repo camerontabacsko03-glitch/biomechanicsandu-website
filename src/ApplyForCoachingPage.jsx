@@ -1494,5 +1494,4 @@ export default function ApplyForCoachingPage() {
   );
 }
 
-  );
 }
