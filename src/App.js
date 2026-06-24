@@ -754,72 +754,6 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="pricing-note-box" style={{ marginTop: "20px" }}>
-            <h3>How coaching is delivered</h3>
-            <div
-              className="pricing-steps"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                gap: "24px",
-                alignItems: "start",
-              }}
-            >
-              <div>
-                <strong>Foundation</strong>
-                <div style={{ marginTop: "8px" }}>
-                  Fully online and built for flexibility, consistency, and
-                  expert programming.
-                </div>
-              </div>
-
-              <div>
-                <strong>Performance</strong>
-                <div style={{ marginTop: "8px" }}>
-                  Introduces in-person coaching access for clients who want more
-                  direct support.
-                </div>
-              </div>
-
-              <div>
-                <strong>Elite</strong>
-                <div style={{ marginTop: "8px" }}>
-                  The highest-touch flagship option with the most hands-on
-                  coaching experience.
-                </div>
-              </div>
-            </div>
-
-            <div
-              style={{
-                marginTop: "28px",
-                paddingTop: "24px",
-                borderTop: "1px solid rgba(255,255,255,0.08)",
-                textAlign: "center",
-              }}
-            >
-              <p
-                style={{
-                  maxWidth: "760px",
-                  margin: "0 auto 18px",
-                  fontSize: "1.02rem",
-                  lineHeight: 1.8,
-                  opacity: 0.92,
-                }}
-              >
-                Online training gives you structure, guidance, and a clear path
-                forward. To take it a step further, invest in in-person
-                training—where every rep is coached, every detail refined, and
-                every limitation addressed in real time to help you become the
-                strongest version of yourself.
-              </p>
-
-              <Link to="/apply?plan=performance" className="btn btn-primary">
-                Apply for In-Person Coaching
-              </Link>
-            </div>
-          </div>
-
           <div className="card-grid three pricing-grid">
             <div className="price-card">
               <div className="plan-label">
@@ -943,8 +877,7 @@ function HomePage() {
                 <li>Faster custom exercise changes as needed</li>
                 <li>1–2 coaching calls per month</li>
                 <li>Higher-touch strategy and accountability</li>
-                <li>Up to 2 in-person sessions per week</li>
-                <li>Weekend priority access when available</li>
+                <li>Priority in-person coaching access</li>
               </ul>
 
               <div className="plan-subhead">Best for</div>
@@ -1166,8 +1099,5 @@ export default function App() {
         </Routes>
       </Router>
     </>
-  );
-}
-
   );
 }
