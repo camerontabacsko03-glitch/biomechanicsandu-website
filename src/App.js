@@ -689,25 +689,68 @@ function HomePage() {
             </p>
           </div>
 
-          <div className="pricing-note-box">
-            <h3>All coaching begins with a structured onboarding process</h3>
+          <div className="pricing-note-box" style={{ marginTop: "20px" }}>
+            <h3>How coaching is delivered</h3>
             <div
               className="pricing-steps"
               style={{
                 display: "grid",
-                gridTemplateColumns: "minmax(260px, 320px) 1fr",
-                gap: "32px",
+                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                gap: "24px",
                 alignItems: "start",
               }}
             >
               <div>
-                <strong>One-time onboarding fee:</strong> varies by tier
+                <strong>Foundation</strong>
+                <div style={{ marginTop: "8px" }}>
+                  Fully online and built for flexibility, consistency, and
+                  expert programming.
+                </div>
               </div>
-              <div style={{ maxWidth: "620px" }}>
-                Includes movement assessment, onboarding call, and initial
-                program setup. Foundation begins at $99, while higher tiers
-                include a $199 onboarding process.
+
+              <div>
+                <strong>Performance</strong>
+                <div style={{ marginTop: "8px" }}>
+                  Includes up to 1 reserved in-person biomechanics session per
+                  week for clients who want more direct support and hands-on
+                  coaching.
+                </div>
               </div>
+
+              <div>
+                <strong>Elite</strong>
+                <div style={{ marginTop: "8px" }}>
+                  Includes priority scheduling and up to 2 in-person sessions
+                  per week, with weekend priority access when available.
+                </div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                marginTop: "28px",
+                paddingTop: "24px",
+                borderTop: "1px solid rgba(255,255,255,0.08)",
+                textAlign: "center",
+              }}
+            >
+              <p
+                style={{
+                  maxWidth: "760px",
+                  margin: "0 auto 18px",
+                  fontSize: "1.02rem",
+                  lineHeight: 1.8,
+                  opacity: 0.92,
+                }}
+              >
+                In-person training slots are limited and assigned as reserved
+                recurring weekly sessions. Performance and Elite clients receive
+                priority access based on availability.
+              </p>
+
+              <Link to="/apply?plan=performance" className="btn btn-primary">
+                Apply for In-Person Coaching
+              </Link>
             </div>
           </div>
 
@@ -829,16 +872,16 @@ function HomePage() {
             <div className="price-card featured-plan">
               <div className="featured-badge">Most Popular</div>
               <div className="plan-label">
-                Level 2 • Online coaching + in-person access
+                Level 2 • Online coaching + hybrid support
               </div>
               <h3>Performance Coaching</h3>
               <div className="price">
                 $399<span>/mo</span>
               </div>
               <p className="price-description">
-                Everything in Foundation, plus more direct feedback, weekly
-                coaching support, and access to in-person sessions for clients
-                who want a more hands-on experience.
+                Everything in Foundation, plus weekly coaching support, deeper
+                feedback, and up to 1 reserved in-person biomechanics session
+                per week.
               </p>
 
               <div className="plan-subhead">Everything in Foundation, plus</div>
@@ -848,14 +891,13 @@ function HomePage() {
                 <li>Pain and injury modification strategy</li>
                 <li>Progressive overload tracking</li>
                 <li>Ongoing messaging support</li>
-                <li>In-person coaching access</li>
+                <li>Up to 1 in-person session per week</li>
               </ul>
 
               <div className="plan-subhead">Best for</div>
               <p className="plan-fit">
-                Clients who want to build muscle, improve movement quality, and
-                have more direct coaching support with the option for in-person
-                guidance.
+                Clients who want consistent hands-on coaching, better movement
+                quality, and a reserved weekly training slot.
               </p>
 
               <div
@@ -888,8 +930,8 @@ function HomePage() {
               </div>
               <p className="price-description">
                 The highest level of support inside Biomechanics &amp; U. Elite
-                combines premium online coaching, priority access, deeper
-                analysis, and the most hands-on coaching experience available.
+                combines premium online coaching, priority scheduling, deeper
+                analysis, and up to 2 in-person sessions per week.
               </p>
 
               <div className="plan-subhead">
@@ -901,7 +943,8 @@ function HomePage() {
                 <li>Faster custom exercise changes as needed</li>
                 <li>1–2 coaching calls per month</li>
                 <li>Higher-touch strategy and accountability</li>
-                <li>Priority in-person coaching access</li>
+                <li>Up to 2 in-person sessions per week</li>
+                <li>Weekend priority access when available</li>
               </ul>
 
               <div className="plan-subhead">Best for</div>
@@ -1123,5 +1166,8 @@ export default function App() {
         </Routes>
       </Router>
     </>
+  );
+}
+
   );
 }
