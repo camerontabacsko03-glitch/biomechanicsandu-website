@@ -1493,5 +1493,3 @@ export default function ApplyForCoachingPage() {
     </div>
   );
 }
-
-}
