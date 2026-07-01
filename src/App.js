@@ -743,9 +743,7 @@ function HomePage() {
                   opacity: 0.92,
                 }}
               >
-                In-person training slots are limited and assigned as reserved
-                recurring weekly sessions. Performance and Elite clients receive
-                priority access based on availability.
+                In-person training slots are limited and assigned as reserved recurring weekly sessions. Performance and Elite clients receive priority scheduling based on availability. Additional private 1:1 biomechanics coaching sessions may be available at separate package rates upon request.
               </p>
 
               <Link to="/apply?plan=performance" className="btn btn-primary">
